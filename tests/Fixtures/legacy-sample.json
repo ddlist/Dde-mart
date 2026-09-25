@@ -1,0 +1,528 @@
+{
+  "__collections__": {
+    "zone": {
+      "zn001": {
+        "id": "zn001",
+        "name": "Downtown",
+        "latitude": 24.8615,
+        "longitude": 67.0099,
+        "area": 5,
+        "publish": true
+      }
+    },
+    "sections": {
+      "sec001": {
+        "id": "sec001",
+        "name": "Food",
+        "serviceType": "food",
+        "color": "#ff0000",
+        "sectionImage": "https://example.com/food.png",
+        "isActive": true
+      }
+    },
+    "vendor_categories": {
+      "cat001": {
+        "id": "cat001",
+        "title": "Pizza",
+        "description": "Cheesy pies",
+        "photo": "https://example.com/pizza.png",
+        "section_id": "sec001",
+        "order": 1,
+        "publish": true,
+        "show_in_homepage": true
+      }
+    },
+    "brands": {
+      "br001": {
+        "id": "br001",
+        "title": "Acme",
+        "photo": "https://example.com/acme.png",
+        "sectionId": "sec001",
+        "is_publish": true
+      }
+    },
+    "vendors": {
+      "vd001": {
+        "id": "vd001",
+        "title": "Fresh Foods",
+        "description": "Grocery store",
+        "authorName": "Ali",
+        "phonenumber": "03001234567",
+        "location": "Main Street",
+        "latitude": "24.8615",
+        "longitude": "67.0099",
+        "photo": "https://example.com/store.png",
+        "section_id": "sec001",
+        "zoneId": "zn001",
+        "reststatus": "True",
+        "adminCommission": "{'type': 'percentage', 'commission': 10, 'enable': True}",
+        "filters": {
+          "Outdoor Seating": "Yes",
+          "Free Wi-Fi": "No"
+        }
+      }
+    },
+    "vendor_products": {
+      "pr001": {
+        "id": "pr001",
+        "name": "Margherita",
+        "description": "Classic",
+        "price": "9.99",
+        "disPrice": "7.99",
+        "quantity": 50,
+        "categoryID": "cat001",
+        "brandID": "br001",
+        "section_id": "sec001",
+        "vendorID": "vd001",
+        "veg": true,
+        "takeawayOption": false,
+        "photo": "https://example.com/margherita.png",
+        "publish": true,
+        "addOnsTitle": [
+          "Extra cheese",
+          ""
+        ],
+        "addOnsPrice": [
+          "1.50",
+          ""
+        ],
+        "createdAt": {
+          "__datatype__": "timestamp",
+          "value": {
+            "_seconds": 1732105990,
+            "_nanoseconds": 0
+          }
+        }
+      },
+      "pr002": {
+        "id": "pr002",
+        "name": "Priceless",
+        "price": "",
+        "publish": true
+      }
+    },
+    "users": {
+      "du001": {
+        "id": "du001",
+        "role": "driver",
+        "firstName": "Rider",
+        "lastName": "Khan",
+        "phoneNumber": "03001112233",
+        "email": "rider@example.com",
+        "profilePictureURL": "https://example.com/rider.png",
+        "active": true
+      },
+      "cu001": {
+        "id": "cu001",
+        "role": "customer",
+        "firstName": "Sara",
+        "lastName": "Khan"
+      },
+      "vu001": {
+        "id": "vu001",
+        "role": "vendor",
+        "firstName": "Store",
+        "lastName": "Owner",
+        "phoneNumber": "03009998877",
+        "email": "owner@example.com",
+        "active": true
+      },
+      "pv001": {
+        "id": "pv001",
+        "role": "provider",
+        "firstName": "Fix",
+        "lastName": "It",
+        "phoneNumber": "03007778899",
+        "active": true
+      }
+    },
+    "documents": {
+      "dt001": {
+        "id": "dt001",
+        "title": "Driving license",
+        "type": "driver",
+        "frontSide": true,
+        "backSide": true,
+        "enable": true
+      }
+    },
+    "documents_verify": {
+      "du001": {
+        "id": "du001",
+        "type": "driver",
+        "documents": [
+          {
+            "documentId": "dt001",
+            "frontImage": "https://example.com/lic-front.png",
+            "backImage": "https://example.com/lic-back.png",
+            "status": "pending"
+          }
+        ]
+      }
+    },
+    "wallet": {
+      "w001": {
+        "id": "w001",
+        "transactionUser": "driver",
+        "user_id": "du001",
+        "amount": "10",
+        "isTopUp": "False",
+        "payment_method": "cash",
+        "payment_status": "success",
+        "note": "Delivery payout",
+        "order_id": "o001",
+        "date": {
+          "__datatype__": "timestamp",
+          "value": {
+            "_seconds": 1732105990,
+            "_nanoseconds": 0
+          }
+        }
+      }
+    },
+    "referral": {
+      "r001": {
+        "id": "r001",
+        "referralCode": "ABC123",
+        "referralBy": "du001"
+      }
+    },
+    "coupons": {
+      "cp001": {
+        "id": "cp001",
+        "code": "big20",
+        "description": "Big offer",
+        "discount": "20",
+        "discountType": "Percentage",
+        "isEnabled": true,
+        "isPublic": true,
+        "section_id": "sec001",
+        "expiresAt": {
+          "__datatype__": "timestamp",
+          "value": {
+            "_seconds": 1893456000,
+            "_nanoseconds": 0
+          }
+        }
+      }
+    },
+    "review_attributes": {
+      "ra001": {
+        "id": "ra001",
+        "title": "Freshness"
+      }
+    },
+    "items_review": {
+      "rv001": {
+        "Id": "rv001",
+        "productId": "pr001",
+        "VendorId": "vd001",
+        "uname": "Zoya",
+        "rating": "4",
+        "comment": "Tasty",
+        "reviewAttributes": {
+          "ra001": 5
+        },
+        "createdAt": {
+          "__datatype__": "timestamp",
+          "value": {
+            "_seconds": 1762409557,
+            "_nanoseconds": 0
+          }
+        }
+      }
+    },
+    "subscription_history": {
+      "sh001": {
+        "id": "sh001",
+        "user_id": "vu001",
+        "payment_type": "paid",
+        "createdAt": {
+          "__datatype__": "timestamp",
+          "value": {
+            "_seconds": 1763648600,
+            "_nanoseconds": 0
+          }
+        }
+      }
+    },
+    "gift_cards": {
+      "gc001": {
+        "id": "gc001",
+        "title": "Birthday",
+        "message": "Happy!",
+        "isEnable": true,
+        "expiryDay": 365
+      }
+    },
+    "gift_purchases": {
+      "gp001": {
+        "id": "gp001",
+        "giftId": "gc001",
+        "giftCode": "GIFT-1",
+        "userid": "cu001",
+        "price": "25",
+        "redeem": false,
+        "expireDate": {
+          "__datatype__": "timestamp",
+          "value": {
+            "_seconds": 1893456000,
+            "_nanoseconds": 0
+          }
+        }
+      }
+    },
+    "story": {
+      "st001": {
+        "id": "st001",
+        "vendorID": "vd001",
+        "videoUrl": [
+          "https://example.com/v.mp4"
+        ],
+        "videoThumbnail": "https://example.com/t.png",
+        "createdAt": {
+          "__datatype__": "timestamp",
+          "value": {
+            "_seconds": 1686552200,
+            "_nanoseconds": 0
+          }
+        }
+      }
+    },
+    "parcel_categories": {
+      "pc001": {
+        "id": "pc001",
+        "title": "Documents",
+        "sectionId": "sec001",
+        "set_order": 1,
+        "publish": true
+      }
+    },
+    "parcel_weight": {
+      "pw001": {
+        "id": "pw001",
+        "title": "5 KG",
+        "delivery_charge": "50"
+      }
+    },
+    "parcel_orders": {
+      "po001": {
+        "id": "po001",
+        "sender": {
+          "name": "Ali",
+          "phone": "0300"
+        },
+        "receiver": {
+          "name": "Sara",
+          "phone": "0301"
+        },
+        "parcelCategoryID": "pc001",
+        "distance": "3.5",
+        "subTotal": "120",
+        "payment_method": "cod",
+        "driverID": "du001",
+        "status": "Order Accepted"
+      }
+    },
+    "rental_vehicle_type": {
+      "rt001": {
+        "id": "rt001",
+        "name": "Sedan",
+        "capacity": "4",
+        "sectionId": "sec001",
+        "isActive": true
+      }
+    },
+    "rental_packages": {
+      "rp001": {
+        "id": "rp001",
+        "name": "2 Hour | 40 KM",
+        "vehicleTypeId": "rt001",
+        "baseFare": "10",
+        "includedHours": "2",
+        "includedDistance": "40",
+        "extraKmFare": "2",
+        "extraMinuteFare": "2",
+        "ordering": 2,
+        "published": true
+      }
+    },
+    "rental_orders": {
+      "ro001": {
+        "id": "ro001",
+        "author": {
+          "firstName": "Ali",
+          "lastName": "R",
+          "phoneNumber": "0300"
+        },
+        "rentalPackageModel": {
+          "id": "rp001"
+        },
+        "subTotal": "20",
+        "paymentMethod": "wallet",
+        "driverId": "du001",
+        "status": "Order Completed"
+      }
+    },
+    "car_make": {
+      "mk001": {
+        "id": "mk001",
+        "name": "Audi",
+        "isActive": true
+      }
+    },
+    "car_model": {
+      "md001": {
+        "id": "md001",
+        "name": "A4",
+        "car_make_id": "mk001",
+        "isActive": true
+      }
+    },
+    "vehicle_type": {
+      "ct001": {
+        "id": "ct001",
+        "name": "Hatchback",
+        "capacity": "6",
+        "sectionId": "sec001",
+        "isActive": true
+      }
+    },
+    "popular_destinations": {
+      "pd001": {
+        "id": "pd001",
+        "title": "Vadodara",
+        "latitude": "22.3072",
+        "longitude": "73.1812",
+        "is_publish": true
+      }
+    },
+    "rides": {
+      "rd001": {
+        "id": "rd001",
+        "author": {
+          "firstName": "Ali",
+          "lastName": "R",
+          "phoneNumber": "0300"
+        },
+        "driverId": "du001",
+        "sourceLocationName": "A",
+        "destinationName": "B",
+        "subTotal": "150",
+        "paymentMethod": "cash",
+        "status": "Order Completed"
+      }
+    },
+    "provider_categories": {
+      "pcat001": {
+        "id": "pcat001",
+        "title": "Appliance",
+        "level": "0",
+        "parentCategoryId": "None",
+        "publish": true
+      },
+      "pcat002": {
+        "id": "pcat002",
+        "title": "AC Repair",
+        "level": "1",
+        "parentCategoryId": "pcat001",
+        "publish": true
+      }
+    },
+    "providers_services": {
+      "ps001": {
+        "id": "ps001",
+        "title": "AC Service",
+        "author": "pv001",
+        "categoryId": "pcat002",
+        "price": "500",
+        "publish": true
+      }
+    },
+    "providers_workers": {
+      "pw001x": {
+        "id": "pw001x",
+        "firstName": "Worker",
+        "lastName": "One",
+        "providerId": "pv001",
+        "active": true
+      }
+    },
+    "provider_orders": {
+      "pb001": {
+        "id": "pb001",
+        "author": {
+          "firstName": "Sara",
+          "lastName": "K"
+        },
+        "subTotal": "500",
+        "payment_method": "cod",
+        "status": "Order Placed"
+      }
+    },
+    "booked_table": {
+      "bt001": {
+        "id": "bt001",
+        "vendorID": "vd001",
+        "guestFirstName": "Sara",
+        "guestLastName": "K",
+        "guestPhone": "0301",
+        "totalGuest": 4,
+        "status": "confirmed"
+      }
+    },
+    "complaints": {
+      "cm001": {
+        "id": "cm001",
+        "title": "Late delivery",
+        "description": "Cold food",
+        "customerName": "Sara",
+        "orderId": "o001",
+        "status": "open"
+      }
+    },
+    "SOS": {
+      "so001": {
+        "id": "so001",
+        "orderId": "o001",
+        "latLong": {
+          "latitude": 24.86,
+          "longitude": 67.0
+        },
+        "status": "Initiated"
+      }
+    },
+    "chat_admin": {
+      "th001": {
+        "id": "th001",
+        "orderId": "o001",
+        "lastMessage": "Hii",
+        "__collections__": {
+          "thread": {
+            "m001": {
+              "id": "m001",
+              "senderId": "u1",
+              "message": "Hii",
+              "createdAt": {
+                "__datatype__": "timestamp",
+                "value": {
+                  "_seconds": 1752054000,
+                  "_nanoseconds": 0
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "on_boarding": {
+      "ob001": {
+        "id": "ob001",
+        "title": "Welcome",
+        "description": "Intro",
+        "image": "https://example.com/ob.png",
+        "type": "customer"
+      }
+    }
+  }
+}
