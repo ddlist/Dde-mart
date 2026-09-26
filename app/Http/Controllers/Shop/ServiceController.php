@@ -43,7 +43,6 @@ class ServiceController extends Controller
         $validated = $request->validate([
             'service_id' => ['required', 'integer', 'exists:provider_services,id'],
             'address' => ['required', 'string', 'max:500'],
-            'phone' => ['required', 'string', 'max:50'],
             'scheduled_at' => ['required', 'date', 'after:now'],
             'notes' => ['nullable', 'string', 'max:1000'],
         ]);
@@ -55,7 +54,7 @@ class ServiceController extends Controller
 
         $booking = ProviderBooking::create([
             'customer_name' => $customer->name,
-            'customer_phone' => $validated['phone'],
+            'customer_phone' => $customer->phone,
             'provider_id' => $service->provider_id,
             'service_id' => $service->id,
             'address' => $validated['address'],

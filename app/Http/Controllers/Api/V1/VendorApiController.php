@@ -133,6 +133,24 @@ class VendorApiController extends Controller
         return response()->json(['data' => ['id' => $payout->id, 'status' => 'pending']], 201);
     }
 
+    /** Accept or cancel an order of an owned store. */
+    public function orderTransition(Request $request, Order $order)
+    {
+        $validated = $request->validate(['to' => ['required', 'string', 'in:accepted,cancelled']]);
+
+        abort_unless(
+            $order->vendor_id && $this->storesOf($request)->contains($order->vendor_id),
+            404
+        );
+        abort_unless($order->canTransitionTo($validated['to']), 422, 'Illegal transition.');
+
+        $from = $order->status;
+        $order->update(['status' => $validated['to']]);
+        $order->history()->create(['from_status' => $from, 'to_status' => $validated['to']]);
+
+        return response()->json(['data' => ['status' => $validated['to']]]);
+    }
+
     /** Owner id + owned store ids (payouts may reference either). */
     protected function ownerRequesterIds(Request $request): array
     {

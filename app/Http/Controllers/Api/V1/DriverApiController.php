@@ -145,4 +145,67 @@ class DriverApiController extends Controller
 
         return response()->json(['data' => ['id' => $payout->id, 'status' => 'pending']], 201);
     }
+
+    /** Accept an unassigned job (claims it + moves to accepted). */
+    public function jobAccept(Request $request)
+    {
+        $validated = $request->validate([
+            'type' => ['required', 'string', 'in:parcel,rental,ride'],
+            'id' => ['required', 'integer'],
+        ]);
+
+        $order = $this->findJob($validated['type'], $validated['id']);
+        abort_unless($order, 404);
+        abort_unless($order->driver_id === null && in_array($order->status, ['placed', 'accepted'], true), 422, 'Job unavailable.');
+
+        $from = $order->status;
+        $order->update(['driver_id' => $request->user()->id, 'status' => 'accepted']);
+        $order->history()->create(['from_status' => $from, 'to_status' => 'accepted']);
+
+        return response()->json(['data' => ['status' => 'accepted']]);
+    }
+
+    /** Advance an assigned job through its machine. */
+    public function jobTransition(Request $request)
+    {
+        $validated = $request->validate([
+            'type' => ['required', 'string', 'in:parcel,rental,ride'],
+            'id' => ['required', 'integer'],
+            'to' => ['required', 'string'],
+            'note' => ['nullable', 'string', 'max:500'],
+        ]);
+
+        $order = $this->findJob($validated['type'], $validated['id']);
+        abort_unless($order, 404);
+        abort_unless($order->driver_id === $request->user()->id, 403, 'Not your job.');
+        abort_unless($order->canTransitionTo($validated['to']), 422, 'Illegal transition.');
+
+        $from = $order->status;
+        $updates = ['status' => $validated['to']];
+
+        if ($validated['to'] === 'ongoing' && empty($order->started_at)) {
+            $updates['started_at'] = now();
+        }
+
+        if ($validated['to'] === 'completed' && empty($order->ended_at)) {
+            $updates['ended_at'] = now();
+        }
+
+        $order->update($updates);
+        $order->history()->create([
+            'from_status' => $from, 'to_status' => $validated['to'],
+            'note' => $validated['note'] ?? null,
+        ]);
+
+        return response()->json(['data' => ['status' => $validated['to']]]);
+    }
+
+    protected function findJob(string $type, int $id)
+    {
+        return match ($type) {
+            'parcel' => ParcelOrder::find($id),
+            'rental' => RentalOrder::find($id),
+            'ride' => Ride::find($id),
+        };
+    }
 }

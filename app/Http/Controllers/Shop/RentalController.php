@@ -60,15 +60,15 @@ class RentalController extends Controller
             ->with('success', "Rental {$order->number} booked.");
     }
 
-    public function track(RentalOrder $order): View
+    public function track(RentalOrder $rentalOrder): View
     {
         $customer = Auth::guard('customer')->user();
 
-        abort_unless($order->customer_phone === $customer->phone, 404);
+        abort_unless($rentalOrder->customer_phone === $customer->phone, 404);
 
-        $order->load(['history', 'package', 'driver']);
+        $rentalOrder->load(['history', 'package', 'driver']);
 
-        return view('shop.rental-track', compact('order'));
+        return view('shop.rental-track', ['order' => $rentalOrder]);
     }
 
     public function mine(): View

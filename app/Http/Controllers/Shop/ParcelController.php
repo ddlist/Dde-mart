@@ -86,15 +86,15 @@ class ParcelController extends Controller
             ->with('success', "Parcel {$order->number} booked. Pay {$total} on delivery.");
     }
 
-    public function track(ParcelOrder $order): View
+    public function track(ParcelOrder $parcelOrder): View
     {
         $customer = Auth::guard('customer')->user();
 
-        abort_unless($order->sender_phone === $customer->phone, 404);
+        abort_unless($parcelOrder->sender_phone === $customer->phone, 404);
 
-        $order->load(['history']);
+        $parcelOrder->load(['history']);
 
-        return view('shop.parcel-track', compact('order'));
+        return view('shop.parcel-track', ['order' => $parcelOrder]);
     }
 
     public function mine(): View
