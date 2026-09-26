@@ -75,5 +75,14 @@ payout per gateway in sandbox before `PAYPAL_MODE=live`.
 Admin panel: COMPLETE — auth+RBAC, users, catalog, food/parcel/rental/ride orders,
 on-demand bookings, dine-in, promotions, finance + live gateways, geo+content,
 people + verification, wallets, reviews, reports, importer, UI kit.
-Remaining tracks: store/website/landing panels, Flutter apps, customer API,
-cloud-function port.
+API v1 (119 routes, `docs/api-v1.md`): customer auth + OTP password reset +
+account deletion, catalog, checkout, wallet top-up, bookings (parcel/rental/
+ride/service/dine-in/gifts/favorites), chat, reviews, complaints/SOS,
+driver + vendor + provider surfaces, workforce push, app-config launch gate.
+Storefront: COMPLETE — landing, catalog, cart, checkout (COD/wallet/gateways),
+orders + tracking, wallet top-up, rides, password reset, render-guarded views.
+Flutter `apps/`: customer (auth/home/launch-gate), driver, vendor — clean-room
+rebuilds against API v1.
+Still external (ops): Firebase credentials + FCM topics, SMS gateway for OTP
+(log driver by default), gateway live keys, Play/App Store listings
+(account deletion + app-config gate satisfy the usual review checks).

@@ -155,6 +155,8 @@ Base URL: `https://<host>/api/v1` · JSON only (`Accept: application/json`).
 | GET | `/api/v1/vendor/payouts` | `auth:sanctum,ability:vendor,owner` | payouts |
 | POST | `/api/v1/vendor/payouts` | `auth:sanctum,ability:vendor,owner` | payoutRequest |
 | GET | `/api/v1/vendor/products` | `auth:sanctum,ability:vendor,owner` | products |
+| POST | `/api/v1/vendor/products` | `auth:sanctum,ability:vendor,owner` | productStore |
+| PUT | `/api/v1/vendor/products/{product}` | `auth:sanctum,ability:vendor,owner` | productUpdate |
 | POST | `/api/v1/vendor/products/{product}/toggle` | `auth:sanctum,ability:vendor,owner` | toggleProduct |
 | DELETE | `/api/v1/vendor/push-tokens` | `auth:sanctum,ability:vendor,owner` | unregisterToken |
 | POST | `/api/v1/vendor/push-tokens` | `auth:sanctum,ability:vendor,owner` | registerToken |

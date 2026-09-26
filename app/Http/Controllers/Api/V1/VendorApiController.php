@@ -8,6 +8,7 @@ use App\Models\PayoutRequest;
 use App\Models\Product;
 use App\Models\Store;
 use App\Models\TableBooking;
+use App\Support\ImageUploads;
 use App\Support\Images;
 use Illuminate\Http\Request;
 
@@ -81,6 +82,69 @@ class VendorApiController extends Controller
         $product->update(['is_active' => ! $product->is_active]);
 
         return response()->json(['data' => ['is_active' => (bool) $product->is_active]]);
+    }
+
+    /** Create a product in an owned store (image via multipart). */
+    public function productStore(Request $request)
+    {
+        $validated = $request->validate([
+            'store_id' => ['required', 'integer', 'exists:stores,id'],
+            'category_id' => ['nullable', 'integer', 'exists:categories,id'],
+            'name' => ['required', 'string', 'max:200'],
+            'description' => ['nullable', 'string', 'max:2000'],
+            'price' => ['required', 'numeric', 'min:0', 'max:1000000'],
+            'discount_price' => ['nullable', 'numeric', 'min:0', 'lt:price'],
+            'quantity' => ['nullable', 'integer', 'min:0'],
+            'veg' => ['nullable', 'boolean'],
+            'is_takeaway' => ['nullable', 'boolean'],
+            'image' => ['nullable', 'image', 'max:4096'],
+        ]);
+
+        abort_unless($this->storesOf($request)->contains($validated['store_id']), 404);
+
+        $product = Product::create(collect($validated)->except('image')->all() + [
+            'vendor_id' => $validated['store_id'],
+            'image_path' => ImageUploads::store($request->file('image'), 'products'),
+        ]);
+
+        return response()->json(['data' => ['id' => $product->id, 'name' => $product->name]], 201);
+    }
+
+    /** Update a product of an owned store (image replace/remove supported). */
+    public function productUpdate(Request $request, Product $product)
+    {
+        abort_unless($product->vendor_id && $this->storesOf($request)->contains($product->vendor_id), 404);
+
+        $validated = $request->validate([
+            'category_id' => ['nullable', 'integer', 'exists:categories,id'],
+            'name' => ['sometimes', 'string', 'max:200'],
+            'description' => ['nullable', 'string', 'max:2000'],
+            'price' => ['sometimes', 'numeric', 'min:0', 'max:1000000'],
+            'discount_price' => ['nullable', 'numeric', 'min:0'],
+            'quantity' => ['nullable', 'integer', 'min:0'],
+            'veg' => ['nullable', 'boolean'],
+            'is_takeaway' => ['nullable', 'boolean'],
+            'image' => ['nullable', 'image', 'max:4096'],
+            'remove_image' => ['nullable', 'boolean'],
+        ]);
+
+        if (array_key_exists('discount_price', $validated) && $validated['discount_price'] !== null) {
+            $price = $validated['price'] ?? $product->price;
+            abort_unless($validated['discount_price'] < $price, 422, 'Discount must be below price.');
+        }
+
+        $data = collect($validated)->except(['image', 'remove_image'])->all();
+
+        if ($request->boolean('remove_image')) {
+            ImageUploads::delete($product->image_path);
+            $data['image_path'] = null;
+        } elseif ($request->hasFile('image')) {
+            $data['image_path'] = ImageUploads::replace($request->file('image'), $product->image_path, 'products');
+        }
+
+        $product->update($data);
+
+        return response()->json(['data' => ['id' => $product->id, 'name' => $product->fresh()->name]]);
     }
 
     public function toggleStore(Request $request, Store $store)

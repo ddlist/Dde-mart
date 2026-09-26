@@ -156,6 +156,8 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::get('/dinein', [VendorApiController::class, 'dinein'])->name('dinein');
         Route::post('/dinein/{booking}/transition', [VendorApiController::class, 'dineinTransition'])->name('dinein.transition');
         Route::get('/products', [VendorApiController::class, 'products'])->name('products');
+        Route::post('/products', [VendorApiController::class, 'productStore'])->name('products.store');
+        Route::put('/products/{product}', [VendorApiController::class, 'productUpdate'])->name('products.update');
         Route::post('/products/{product}/toggle', [VendorApiController::class, 'toggleProduct'])->name('products.toggle');
         Route::get('/payouts', [VendorApiController::class, 'payouts'])->name('payouts');
         Route::post('/payouts', [VendorApiController::class, 'payoutRequest'])->name('payouts.request');
