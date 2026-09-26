@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\V1\OrderResource;
 use App\Models\Order;
 use App\Models\WalletEntry;
+use App\Services\ShopPayments;
 use Illuminate\Http\Request;
 
 /*
@@ -73,5 +74,88 @@ class AccountController extends Controller
                 'total' => $entries->total(),
             ],
         ]);
+    }
+
+    /**
+     * Start a wallet top-up via gateway redirect (verified callback credits).
+     */
+    public function topupStart(Request $request, ShopPayments $payments)
+    {
+        $validated = $request->validate([
+            'amount' => ['required', 'numeric', 'min:1', 'max:100000'],
+            'method' => ['required', 'string', 'in:stripe,razorpay,paypal'],
+        ]);
+
+        $quote = [
+            'lines' => [[
+                'name' => 'Wallet top-up',
+                'subtotal' => round((float) $validated['amount'], 2),
+            ]],
+            'subtotal' => round((float) $validated['amount'], 2),
+            'total' => round((float) $validated['amount'], 2),
+        ];
+
+        try {
+            [$url, $reference] = $payments->start(
+                $validated['method'],
+                $quote,
+                route('api.v1.wallet.topup.callback', ['method' => $validated['method']]),
+                route('api.v1.wallet.topup.callback', ['method' => $validated['method'], 'cancel' => 1]),
+            );
+        } catch (\App\Payments\DriverNotConfigured $e) {
+            return response()->json(['message' => $e->getMessage()], 422);
+        }
+
+        session(['api.topup' => [
+            'method' => $validated['method'],
+            'reference' => $reference,
+            'amount' => round((float) $validated['amount'], 2),
+            'customer_id' => $request->user()->id,
+        ]]);
+
+        return response()->json(['data' => ['redirect_url' => $url, 'reference' => $reference]]);
+    }
+
+    /** Gateway return: verify, then credit the wallet once (idempotent-ish). */
+    public function topupCallback(Request $request, string $method, ShopPayments $payments)
+    {
+        $pending = session('api.topup');
+
+        if (! $pending || ($pending['method'] ?? null) !== $method || $request->boolean('cancel')) {
+            return response()->json(['message' => 'Top-up session expired or cancelled.'], 422);
+        }
+
+        $reference = (string) ($request->input('session_id') ?? $request->input('razorpay_payment_link_id') ?? $request->input('token') ?? '');
+
+        $paid = match ($method) {
+            'stripe' => $payments->verifyStripe($reference),
+            'razorpay' => $payments->verifyRazorpay($reference),
+            'paypal' => $payments->verifyPaypal($reference),
+            default => false,
+        };
+
+        if (! $paid) {
+            return response()->json(['message' => 'Payment not confirmed.'], 422);
+        }
+
+        $customer = \App\Models\Customer::find($pending['customer_id']);
+        abort_unless($customer, 404);
+
+        $entry = WalletEntry::firstOrCreate(
+            ['note' => "Top-up {$pending['reference']}"],
+            [
+                'owner_type' => 'customer',
+                'owner_ref' => $customer->phone,
+                'amount' => $pending['amount'],
+                'kind' => 'topup',
+                'method' => $method,
+                'status' => 'success',
+                'occurred_at' => now(),
+            ],
+        );
+
+        session()->forget('api.topup');
+
+        return response()->json(['data' => ['credited' => (float) $entry->amount]]);
     }
 }

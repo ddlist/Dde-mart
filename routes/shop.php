@@ -27,6 +27,7 @@ Route::middleware('web')->name('shop.')->group(function () {
 
     Route::prefix('shop')->group(function () {
         Route::get('/', [HomeController::class, 'index'])->name('home');
+        Route::get('/welcome', [HomeController::class, 'landing'])->name('landing');
 
         // Location + section context (session; replaces legacy cookie hacks).
         Route::get('/location', [LocationController::class, 'show'])->name('location');

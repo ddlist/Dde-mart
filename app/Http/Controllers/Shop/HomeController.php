@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Shop;
 
 use App\Http\Controllers\Controller;
 use App\Models\Banner;
+use App\Models\ContentBlock;
 use App\Models\Coupon;
+use App\Models\Driver;
 use App\Models\Product;
 use App\Models\Section;
 use App\Models\Store;
@@ -16,6 +18,19 @@ use Illuminate\View\View;
  */
 class HomeController extends Controller
 {
+    public function landing(): View
+    {
+        return view('shop.landing', [
+            'sections' => Section::where('is_active', true)->orderBy('sort_order')->limit(4)->get(),
+            'blocks' => ContentBlock::where('is_active', true)->whereIn('key', ['homepage_hero', 'homepage_promos'])->get(),
+            'stats' => [
+                'stores' => Store::where('status', 'active')->count(),
+                'products' => Product::where('is_active', true)->count(),
+                'drivers' => Driver::where('status', 'active')->count(),
+            ],
+        ]);
+    }
+
     public function index(): View
     {
         $sectionId = session('shop.section_id');

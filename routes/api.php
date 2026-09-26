@@ -3,10 +3,12 @@
 use App\Http\Controllers\Api\V1\AccountController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\CatalogController;
+use App\Http\Controllers\Api\V1\ChatApiController;
 use App\Http\Controllers\Api\V1\CheckoutController;
 use App\Http\Controllers\Api\V1\DriverApiController;
 use App\Http\Controllers\Api\V1\EngagementController;
 use App\Http\Controllers\Api\V1\LifeApiController;
+use App\Http\Controllers\Api\V1\ProviderApiController;
 use App\Http\Controllers\Api\V1\ReviewApiController;
 use App\Http\Controllers\Api\V1\TransportApiController;
 use App\Http\Controllers\Api\V1\UploadController;
@@ -98,6 +100,13 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
 
         Route::get('/favorites', [LifeApiController::class, 'favorites'])->name('favorites');
         Route::post('/favorites/toggle', [LifeApiController::class, 'favoriteToggle'])->name('favorites.toggle');
+
+        Route::get('/wallet/topup/callback/{method}', [AccountController::class, 'topupCallback'])->name('wallet.topup.callback');
+        Route::post('/wallet/topup', [AccountController::class, 'topupStart'])->name('wallet.topup');
+
+        Route::get('/chat/threads', [ChatApiController::class, 'threads'])->name('chat.threads');
+        Route::get('/chat/threads/{thread}', [ChatApiController::class, 'show'])->name('chat.show');
+        Route::post('/chat/send', [ChatApiController::class, 'send'])->name('chat.send');
     });
 
     // Workforce auth (OTP-only, per role).
@@ -134,6 +143,15 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::post('/products/{product}/toggle', [VendorApiController::class, 'toggleProduct'])->name('products.toggle');
         Route::get('/payouts', [VendorApiController::class, 'payouts'])->name('payouts');
         Route::post('/payouts', [VendorApiController::class, 'payoutRequest'])->name('payouts.request');
+        Route::post('/uploads', [UploadController::class, 'store'])->name('uploads');
+    });
+
+    // Provider app surfaces.
+    Route::middleware(['auth:sanctum', 'abilities:provider'])->prefix('provider')->name('provider.')->group(function () {
+        Route::get('/me', [WorkAuthController::class, 'me'])->name('me');
+        Route::post('/logout', [WorkAuthController::class, 'logout'])->name('logout');
+        Route::get('/bookings', [ProviderApiController::class, 'bookings'])->name('bookings');
+        Route::get('/bookings/{booking}', [ProviderApiController::class, 'booking'])->name('bookings.show');
         Route::post('/uploads', [UploadController::class, 'store'])->name('uploads');
     });
 
