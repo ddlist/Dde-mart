@@ -46,6 +46,23 @@ class OrderController extends Controller
         return view('shop.order', compact('order'));
     }
 
+    /** Cancel a still-placed order (before the vendor accepts it). */
+    public function cancel(Order $order): RedirectResponse
+    {
+        $customer = Auth::guard('customer')->user();
+
+        abort_unless(
+            $order->customer_id === $customer->id || $order->customer_phone === $customer->phone,
+            404
+        );
+        abort_unless($order->status === Order::PLACED, 422, 'Only placed orders can be cancelled.');
+
+        $order->update(['status' => Order::CANCELLED]);
+        $order->history()->create(['from_status' => Order::PLACED, 'to_status' => Order::CANCELLED]);
+
+        return redirect()->route('shop.orders.show', $order)->with('success', 'Order cancelled.');
+    }
+
     public function reorder(Order $order): RedirectResponse
     {
         $customer = Auth::guard('customer')->user();

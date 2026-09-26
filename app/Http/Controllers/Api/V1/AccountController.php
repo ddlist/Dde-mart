@@ -43,6 +43,23 @@ class AccountController extends Controller
         return new OrderResource($order);
     }
 
+    /** Cancel a still-placed order (before the vendor accepts it). */
+    public function cancel(Request $request, Order $order)
+    {
+        $customer = $request->user();
+
+        abort_unless(
+            $order->customer_id === $customer->id || $order->customer_phone === $customer->phone,
+            404
+        );
+        abort_unless($order->status === Order::PLACED, 422, 'Only placed orders can be cancelled.');
+
+        $order->update(['status' => Order::CANCELLED]);
+        $order->history()->create(['from_status' => Order::PLACED, 'to_status' => Order::CANCELLED]);
+
+        return new OrderResource($order->load(['items', 'history']));
+    }
+
     public function wallet(Request $request)
     {
         $customer = $request->user();

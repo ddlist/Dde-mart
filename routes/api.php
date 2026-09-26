@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\V1\EngagementController;
 use App\Http\Controllers\Api\V1\LifeApiController;
 use App\Http\Controllers\Api\V1\ProviderApiController;
 use App\Http\Controllers\Api\V1\ReviewApiController;
+use App\Http\Controllers\Api\V1\SafetyApiController;
 use App\Http\Controllers\Api\V1\TransportApiController;
 use App\Http\Controllers\Api\V1\UploadController;
 use App\Http\Controllers\Api\V1\VendorApiController;
@@ -57,6 +58,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::post('/checkout', [CheckoutController::class, 'checkout'])->name('checkout');
         Route::get('/orders', [AccountController::class, 'orders'])->name('orders');
         Route::get('/orders/{order}', [AccountController::class, 'order'])->name('orders.show');
+        Route::post('/orders/{order}/cancel', [AccountController::class, 'cancel'])->name('orders.cancel');
         Route::get('/wallet', [AccountController::class, 'wallet'])->name('wallet');
 
         // Engagement.
@@ -64,6 +66,11 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::delete('/push-tokens', [EngagementController::class, 'unregisterToken'])->name('push-tokens.destroy');
         Route::post('/reviews', [ReviewApiController::class, 'store'])->name('reviews.store');
         Route::get('/reviews', [ReviewApiController::class, 'mine'])->name('reviews.mine');
+
+        // Safety inbox.
+        Route::post('/complaints', [SafetyApiController::class, 'complaintStore'])->name('complaints.store');
+        Route::get('/complaints', [SafetyApiController::class, 'complaintMine'])->name('complaints.mine');
+        Route::post('/sos', [SafetyApiController::class, 'sosRaise'])->name('sos.raise');
 
         // Transport bookings.
         Route::get('/parcel/meta', [TransportApiController::class, 'parcelMeta'])->name('parcel.meta');
@@ -128,6 +135,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::post('/payouts', [DriverApiController::class, 'payoutRequest'])->name('payouts.request');
         Route::post('/jobs/accept', [DriverApiController::class, 'jobAccept'])->name('jobs.accept');
         Route::post('/jobs/transition', [DriverApiController::class, 'jobTransition'])->name('jobs.transition');
+        Route::post('/sos', [SafetyApiController::class, 'sosRaise'])->name('sos.raise');
         Route::post('/uploads', [UploadController::class, 'store'])->name('uploads');
         Route::post('/push-tokens', [EngagementController::class, 'registerToken'])->name('push-tokens.store');
         Route::delete('/push-tokens', [EngagementController::class, 'unregisterToken'])->name('push-tokens.destroy');

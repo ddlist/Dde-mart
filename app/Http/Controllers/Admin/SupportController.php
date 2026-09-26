@@ -12,7 +12,7 @@ use Illuminate\View\View;
 
 /*
  * DDE-Mart Admin — support inbox (original controller).
- * Complaints (resolve/dismiss), SOS alerts (resolve-only), chat threads (read-only).
+ * Complaints (resolve/dismiss), SOS alerts (resolve-only), chat threads (staff reply).
  */
 class SupportController extends Controller
 {
@@ -73,5 +73,21 @@ class SupportController extends Controller
         $thread->update(['status' => 'closed']);
 
         return redirect()->route('admin.chats.show', $thread)->with('success', 'Thread closed.');
+    }
+
+    public function chatReply(Request $request, ChatThread $thread): RedirectResponse
+    {
+        abort_unless($thread->status === 'open', 422, 'Thread is closed.');
+
+        $validated = $request->validate(['message' => ['required', 'string', 'max:2000']]);
+
+        $thread->messages()->create([
+            'sender_ref' => 'admin:'.$request->user()->id,
+            'body' => $validated['message'],
+            'sent_at' => now(),
+        ]);
+        $thread->update(['last_message' => substr($validated['message'], 0, 500)]);
+
+        return redirect()->route('admin.chats.show', $thread)->with('success', 'Reply sent.');
     }
 }

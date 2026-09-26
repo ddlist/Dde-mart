@@ -22,6 +22,7 @@
 
         <div class="flex gap-2">
             <x-btn variant="ghost" href="{{ route('shop.orders') }}">My orders</x-btn>
+            <x-btn variant="ghost" href="{{ route('shop.wallet') }}">Wallet</x-btn>
             <form method="POST" action="{{ route('shop.logout') }}">
                 @csrf
                 <x-btn variant="ghost">Sign out</x-btn>

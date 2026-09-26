@@ -13,7 +13,9 @@ use App\Http\Controllers\Shop\OrderController;
 use App\Http\Controllers\Shop\PageController;
 use App\Http\Controllers\Shop\ParcelController;
 use App\Http\Controllers\Shop\RentalController;
+use App\Http\Controllers\Shop\RideController;
 use App\Http\Controllers\Shop\ServiceController;
+use App\Http\Controllers\Shop\WalletController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -74,6 +76,12 @@ Route::middleware('web')->name('shop.')->group(function () {
             Route::get('/orders', [OrderController::class, 'index'])->name('orders');
             Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
             Route::post('/orders/{order}/reorder', [OrderController::class, 'reorder'])->name('orders.reorder');
+            Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
+
+            // Wallet.
+            Route::get('/wallet', [WalletController::class, 'index'])->name('wallet');
+            Route::post('/wallet/topup', [WalletController::class, 'topup'])->name('wallet.topup');
+            Route::get('/wallet/callback/{method}', [WalletController::class, 'callback'])->name('wallet.callback');
 
             // Parcel + rental + services + dine-in.
             Route::get('/parcel', [ParcelController::class, 'index'])->name('parcel');
@@ -86,6 +94,13 @@ Route::middleware('web')->name('shop.')->group(function () {
             Route::post('/rental/book', [RentalController::class, 'store'])->name('rental.book');
             Route::get('/rental/orders', [RentalController::class, 'mine'])->name('rental.orders');
             Route::get('/rental/orders/{rentalOrder}', [RentalController::class, 'track'])->name('rental.track');
+
+            Route::get('/ride', [RideController::class, 'index'])->name('ride');
+            Route::post('/ride/quote', [RideController::class, 'quote'])->name('ride.quote');
+            Route::post('/ride/book', [RideController::class, 'store'])->name('ride.book');
+            Route::get('/ride/orders', [RideController::class, 'mine'])->name('ride.orders');
+            Route::get('/ride/orders/{ride}', [RideController::class, 'track'])->name('ride.track');
+            Route::post('/ride/orders/{ride}/cancel', [RideController::class, 'cancel'])->name('ride.cancel');
 
             Route::get('/services', [ServiceController::class, 'index'])->name('services');
             Route::get('/services/categories/{category}', [ServiceController::class, 'category'])->name('services.category');

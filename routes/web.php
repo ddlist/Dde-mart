@@ -480,6 +480,8 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
         ->middleware('admin.can:content,view')->name('chats.show');
     Route::post('/chats/{thread}/close', [SupportController::class, 'chatClose'])
         ->middleware('admin.can:content,edit')->name('chats.close');
+    Route::post('/chats/{thread}/reply', [SupportController::class, 'chatReply'])
+        ->middleware('admin.can:content,edit')->name('chats.reply');
 
     // Engagement: slides, content blocks, scheduled pushes, manual email.
     Route::get('/slides', [EngagementController::class, 'slides'])

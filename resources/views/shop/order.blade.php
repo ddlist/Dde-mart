@@ -32,6 +32,12 @@
                 @csrf
                 <x-btn variant="ghost">Reorder these items</x-btn>
             </form>
+            @if ($order->status === 'placed')
+                <form method="POST" action="{{ route('shop.orders.cancel', $order) }}" class="mt-2">
+                    @csrf
+                    <x-btn variant="ghost">Cancel this order</x-btn>
+                </form>
+            @endif
         </x-card>
 
         <x-card title="Tracking">

@@ -12,7 +12,7 @@ class SosAlert extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['legacy_id', 'order_ref', 'latitude', 'longitude', 'status', 'occurred_at'];
+    protected $fillable = ['legacy_id', 'order_ref', 'reporter_type', 'reporter_ref', 'latitude', 'longitude', 'status', 'occurred_at'];
 
     protected function casts(): array
     {

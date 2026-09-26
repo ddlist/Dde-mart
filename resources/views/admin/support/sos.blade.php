@@ -17,12 +17,13 @@
     <div class="table-card">
         <table class="min-w-full">
             <thead class="thead">
-                <tr><th class="th">Order</th><th class="th">Location</th><th class="th">Raised</th><th class="th">Status</th><th class="th text-right">Resolve</th></tr>
+                <tr><th class="th">Order</th><th class="th">Reporter</th><th class="th">Location</th><th class="th">Raised</th><th class="th">Status</th><th class="th text-right">Resolve</th></tr>
             </thead>
             <tbody class="tbody-row">
                 @forelse ($alerts as $alert)
                     <tr>
                         <td class="td font-mono text-xs">{{ $alert->order_ref ?? '—' }}</td>
+                        <td class="td font-mono text-xs">{{ $alert->reporter_ref ? ($alert->reporter_type.':'.$alert->reporter_ref) : '—' }}</td>
                         <td class="td text-xs">
                             @if ($alert->latitude)
                                 <a href="https://www.google.com/maps?q={{ $alert->latitude }},{{ $alert->longitude }}"
@@ -47,7 +48,7 @@
                         </td>
                     </tr>
                 @empty
-                    <tr><td colspan="5" class="td"><x-empty message="No SOS alerts." /></td></tr>
+                    <tr><td colspan="6" class="td"><x-empty message="No SOS alerts." /></td></tr>
                 @endforelse
             </tbody>
         </table>
