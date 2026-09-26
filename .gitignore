@@ -21,3 +21,7 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
+# DDE-Mart: never commit DB dumps (customer PII) or one-off ops scripts.
+/*.sql
+/rehost-*.php
+/scratch-*.php
