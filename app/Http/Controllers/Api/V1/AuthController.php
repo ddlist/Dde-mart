@@ -128,6 +128,56 @@ class AuthController extends Controller
         return response()->json(['data' => ['logged_out' => true]]);
     }
 
+    /** Step 1 of password reset: code to an existing account's phone. */
+    public function passwordRequest(Request $request): JsonResponse
+    {
+        $validated = $request->validate(['phone' => ['required', 'string', 'max:50']]);
+
+        $customer = Customer::where('phone', $validated['phone'])->first();
+        abort_unless($customer && $customer->is_active, 404, 'No active account for this number.');
+
+        if (OtpCode::recentCount($validated['phone']) >= OtpCode::MAX_PER_HOUR) {
+            return response()->json(['message' => 'Too many codes requested. Try later.'], 429);
+        }
+
+        [, $plain] = OtpCode::issue($validated['phone']);
+        Log::info('Password-reset OTP issued', ['phone' => $validated['phone'], 'code' => $plain]);
+
+        return response()->json(['data' => [
+            'expires_in' => OtpCode::TTL_MINUTES * 60,
+            'debug_code' => app()->isProduction() ? null : $plain,
+        ]]);
+    }
+
+    /** Step 2: verified code sets a new password and signs the account in. */
+    public function passwordReset(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'phone' => ['required', 'string', 'max:50'],
+            'code' => ['required', 'string', 'max:10'],
+            'password' => ['required', 'string', 'min:8', 'max:100', 'confirmed'],
+        ]);
+
+        $customer = Customer::where('phone', $validated['phone'])->first();
+        abort_unless($customer && $customer->is_active, 404, 'No active account for this number.');
+
+        // Any valid unconsumed code works (newest first) — codes issued in
+        // the same second share a timestamp, so latest() alone can misfire.
+        $verified = OtpCode::where('phone', $validated['phone'])
+            ->whereNull('consumed_at')
+            ->latest()
+            ->get()
+            ->first(fn ($code) => $code->check($validated['code']));
+
+        if (! $verified) {
+            return response()->json(['message' => 'Invalid or expired code.'], 401);
+        }
+
+        $customer->update(['password' => $validated['password']]);
+
+        return response()->json(['data' => $this->customerPayload($customer, $request)]);
+    }
+
     protected function customerPayload(Customer $customer, Request $request): array
     {
         $token = $customer->createToken(

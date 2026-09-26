@@ -116,6 +116,74 @@ class AuthController extends Controller
         return redirect()->route('shop.home');
     }
 
+    public function forgot(): View
+    {
+        return view('shop.auth.forgot');
+    }
+
+    /** Step 1: code to an existing account's phone, then show the reset form. */
+    public function forgotSend(Request $request): RedirectResponse
+    {
+        $validated = $request->validate(['phone' => ['required', 'string', 'max:50']]);
+
+        $customer = Customer::where('phone', $validated['phone'])->first();
+
+        if (! $customer || ! $customer->is_active) {
+            return redirect()->route('shop.forgot')->with('error', 'No active account for this number.');
+        }
+
+        if (OtpCode::recentCount($validated['phone']) >= OtpCode::MAX_PER_HOUR) {
+            return redirect()->route('shop.forgot')->with('error', 'Too many codes. Try later.');
+        }
+
+        [, $plain] = OtpCode::issue($validated['phone']);
+        Log::info('Shop password-reset OTP issued', ['phone' => $validated['phone'], 'code' => $plain]);
+
+        return redirect()->route('shop.reset', ['phone' => $validated['phone']])
+            ->with('success', 'Code sent. Enter it below with your new password.');
+    }
+
+    public function reset(string $phone = ''): View
+    {
+        return view('shop.auth.reset', ['phone' => $phone]);
+    }
+
+    /** Step 2: verified code sets the new password and signs the shopper in. */
+    public function resetStore(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'phone' => ['required', 'string', 'max:50'],
+            'code' => ['required', 'string', 'max:10'],
+            'password' => ['required', 'string', 'min:8', 'max:100', 'confirmed'],
+        ]);
+
+        $customer = Customer::where('phone', $validated['phone'])->first();
+
+        if (! $customer || ! $customer->is_active) {
+            return redirect()->route('shop.forgot')->with('error', 'No active account for this number.');
+        }
+
+        // Any valid unconsumed code works (newest first) — codes issued in
+        // the same second share a timestamp, so latest() alone can misfire.
+        $verified = OtpCode::where('phone', $validated['phone'])
+            ->whereNull('consumed_at')
+            ->latest()
+            ->get()
+            ->first(fn ($code) => $code->check($validated['code']));
+
+        if (! $verified) {
+            return redirect()->route('shop.reset', ['phone' => $validated['phone']])
+                ->with('error', 'Invalid or expired code.');
+        }
+
+        $customer->update(['password' => $validated['password']]);
+
+        Auth::guard('customer')->login($customer);
+        $request->session()->regenerate();
+
+        return redirect()->route('shop.home')->with('success', 'Password updated. Welcome back.');
+    }
+
     public function profile(): View
     {
         return view('shop.auth.profile', ['customer' => Auth::guard('customer')->user()]);

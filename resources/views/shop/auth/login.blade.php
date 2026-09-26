@@ -32,6 +32,7 @@
 
             <p class="mt-4 text-center text-sm text-slate-500">
                 New here? <a href="{{ route('shop.register') }}" class="font-bold text-emerald-700">Create account</a>
+                · <a href="{{ route('shop.forgot') }}" class="font-bold text-emerald-700">Forgot password</a>
             </p>
         </div>
 

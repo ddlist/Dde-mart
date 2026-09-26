@@ -59,6 +59,10 @@ Route::middleware('web')->name('shop.')->group(function () {
             Route::post('/login', [AuthController::class, 'attempt'])->name('login.attempt');
             Route::post('/login/otp', [AuthController::class, 'otp'])->name('login.otp');
             Route::post('/login/otp/verify', [AuthController::class, 'otpVerify'])->name('login.otp.verify');
+            Route::get('/forgot', [AuthController::class, 'forgot'])->name('forgot');
+            Route::post('/forgot', [AuthController::class, 'forgotSend'])->name('forgot.send');
+            Route::get('/reset/{phone?}', [AuthController::class, 'reset'])->name('reset');
+            Route::post('/reset', [AuthController::class, 'resetStore'])->name('reset.store');
         });
 
         Route::middleware('auth:customer')->group(function () {

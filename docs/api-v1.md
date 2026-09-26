@@ -33,6 +33,8 @@ Base URL: `https://<host>/api/v1` · JSON only (`Accept: application/json`).
 | POST | `/api/v1/auth/logout` | `auth:sanctum,abilities:customer` | logout |
 | POST | `/api/v1/auth/otp/request` | `throttle:api-auth` | otpRequest |
 | POST | `/api/v1/auth/otp/verify` | `throttle:api-auth` | otpVerify |
+| POST | `/api/v1/auth/password/request` | `throttle:api-auth` | passwordRequest |
+| POST | `/api/v1/auth/password/reset` | `throttle:api-auth` | passwordReset |
 | POST | `/api/v1/auth/register` | `throttle:api-auth` | register |
 
 ## Workforce auth
@@ -170,4 +172,12 @@ Base URL: `https://<host>/api/v1` · JSON only (`Accept: application/json`).
 | GET | `/api/v1/provider/me` | `auth:sanctum,abilities:provider` | me |
 | DELETE | `/api/v1/provider/push-tokens` | `auth:sanctum,abilities:provider` | unregisterToken |
 | POST | `/api/v1/provider/push-tokens` | `auth:sanctum,abilities:provider` | registerToken |
+| GET | `/api/v1/provider/services` | `auth:sanctum,abilities:provider` | services |
+| POST | `/api/v1/provider/services` | `auth:sanctum,abilities:provider` | serviceStore |
+| PUT | `/api/v1/provider/services/{service}` | `auth:sanctum,abilities:provider` | serviceUpdate |
+| POST | `/api/v1/provider/services/{service}/toggle` | `auth:sanctum,abilities:provider` | serviceToggle |
 | POST | `/api/v1/provider/uploads` | `auth:sanctum,abilities:provider` | store |
+| GET | `/api/v1/provider/workers` | `auth:sanctum,abilities:provider` | workers |
+| POST | `/api/v1/provider/workers` | `auth:sanctum,abilities:provider` | workerStore |
+| PUT | `/api/v1/provider/workers/{worker}` | `auth:sanctum,abilities:provider` | workerUpdate |
+| POST | `/api/v1/provider/workers/{worker}/toggle` | `auth:sanctum,abilities:provider` | workerToggle |

@@ -45,6 +45,8 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::post('/auth/login', [AuthController::class, 'login'])->name('auth.login');
         Route::post('/auth/otp/request', [AuthController::class, 'otpRequest'])->name('auth.otp.request');
         Route::post('/auth/otp/verify', [AuthController::class, 'otpVerify'])->name('auth.otp.verify');
+        Route::post('/auth/password/request', [AuthController::class, 'passwordRequest'])->name('auth.password.request');
+        Route::post('/auth/password/reset', [AuthController::class, 'passwordReset'])->name('auth.password.reset');
     });
 
     // Authenticated customer routes.
@@ -167,6 +169,14 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::get('/bookings', [ProviderApiController::class, 'bookings'])->name('bookings');
         Route::get('/bookings/{booking}', [ProviderApiController::class, 'booking'])->name('bookings.show');
         Route::post('/bookings/{booking}/transition', [ProviderApiController::class, 'bookingTransition'])->name('bookings.transition');
+        Route::get('/services', [ProviderApiController::class, 'services'])->name('services');
+        Route::post('/services', [ProviderApiController::class, 'serviceStore'])->name('services.store');
+        Route::put('/services/{service}', [ProviderApiController::class, 'serviceUpdate'])->name('services.update');
+        Route::post('/services/{service}/toggle', [ProviderApiController::class, 'serviceToggle'])->name('services.toggle');
+        Route::get('/workers', [ProviderApiController::class, 'workers'])->name('workers');
+        Route::post('/workers', [ProviderApiController::class, 'workerStore'])->name('workers.store');
+        Route::put('/workers/{worker}', [ProviderApiController::class, 'workerUpdate'])->name('workers.update');
+        Route::post('/workers/{worker}/toggle', [ProviderApiController::class, 'workerToggle'])->name('workers.toggle');
         Route::post('/uploads', [UploadController::class, 'store'])->name('uploads');
         Route::post('/push-tokens', [EngagementController::class, 'registerToken'])->name('push-tokens.store');
         Route::delete('/push-tokens', [EngagementController::class, 'unregisterToken'])->name('push-tokens.destroy');
