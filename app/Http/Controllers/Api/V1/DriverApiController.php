@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Models\ChatThread;
 use App\Models\DocumentType;
 use App\Models\Order;
 use App\Models\ParcelOrder;
@@ -269,5 +270,55 @@ class DriverApiController extends Controller
             'rental' => RentalOrder::find($id),
             'ride' => Ride::find($id),
         };
+    }
+
+    /** Support threads linked to this driver (customer opened, driver answers). */
+    public function chatThreads(Request $request)
+    {
+        $threads = ChatThread::where('driver_id', $request->user()->id)
+            ->orderByDesc('id')
+            ->paginate(min(50, max(1, (int) $request->input('per_page', 15))));
+
+        return response()->json([
+            'data' => $threads->map(fn ($t) => [
+                'id' => $t->id, 'subject' => $t->subject, 'status' => $t->status,
+                'order_ref' => $t->order_ref, 'last_message' => $t->last_message,
+            ]),
+            'meta' => ['current_page' => $threads->currentPage(), 'last_page' => $threads->lastPage(), 'total' => $threads->total()],
+        ]);
+    }
+
+    public function chatShow(Request $request, ChatThread $thread)
+    {
+        abort_unless($thread->driver_id === $request->user()->id, 404);
+        $thread->load(['messages']);
+
+        return response()->json(['data' => [
+            'id' => $thread->id, 'subject' => $thread->subject, 'status' => $thread->status,
+            'order_ref' => $thread->order_ref,
+            'messages' => $thread->messages->map(fn ($m) => [
+                'id' => $m->id,
+                'from_me' => str_starts_with($m->sender_ref ?? '', 'driver:'),
+                'body' => $m->body,
+                'at' => $m->sent_at?->toIso8601String(),
+            ]),
+        ]]);
+    }
+
+    public function chatReply(Request $request, ChatThread $thread)
+    {
+        abort_unless($thread->driver_id === $request->user()->id, 404);
+        abort_unless($thread->status === 'open', 422, 'Thread is closed.');
+
+        $validated = $request->validate(['message' => ['required', 'string', 'max:2000']]);
+
+        $message = $thread->messages()->create([
+            'sender_ref' => 'driver:'.$request->user()->id,
+            'body' => $validated['message'],
+            'sent_at' => now(),
+        ]);
+        $thread->update(['last_message' => substr($validated['message'], 0, 500)]);
+
+        return response()->json(['data' => ['message_id' => $message->id]], 201);
     }
 }

@@ -3,7 +3,11 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Models\ChatThread;
+use App\Models\Coupon;
 use App\Models\Order;
+use App\Models\PlanSubscription;
+use App\Models\SubscriptionPlan;
 use App\Models\PayoutRequest;
 use App\Models\Product;
 use App\Models\Store;
@@ -262,5 +266,161 @@ class VendorApiController extends Controller
             [$request->user()->id],
             $this->storesOf($request)->all(),
         );
+    }
+
+    /** Coupons funded by this vendor (own stores, food scope). */
+    public function coupons(Request $request)
+    {
+        $coupons = Coupon::whereIn('vendor_id', $this->storesOf($request))
+            ->orderByDesc('id')
+            ->paginate(min(50, max(1, (int) $request->input('per_page', 15))));
+
+        return response()->json([
+            'data' => $coupons->map(fn ($c) => [
+                'id' => $c->id, 'code' => $c->code,
+                'discount_type' => $c->discount_type,
+                'discount_value' => (float) $c->discount_value,
+                'min_order' => (float) $c->min_order,
+                'usage_limit' => $c->usage_limit, 'used_count' => $c->used_count,
+                'is_active' => (bool) $c->is_active,
+                'expires_at' => $c->expires_at?->toIso8601String(),
+            ]),
+            'meta' => ['current_page' => $coupons->currentPage(), 'last_page' => $coupons->lastPage(), 'total' => $coupons->total()],
+        ]);
+    }
+
+    public function couponStore(Request $request)
+    {
+        $validated = $request->validate([
+            'store_id' => ['required', 'integer', 'exists:stores,id'],
+            'code' => ['required', 'string', 'max:20'],
+            'description' => ['nullable', 'string', 'max:500'],
+            'discount_type' => ['required', 'string', 'in:percentage,fixed'],
+            'discount_value' => ['required', 'numeric', 'min:0'],
+            'min_order' => ['nullable', 'numeric', 'min:0'],
+            'max_discount' => ['nullable', 'numeric', 'min:0'],
+            'usage_limit' => ['nullable', 'integer', 'min:1'],
+            'expires_at' => ['nullable', 'date', 'after:now'],
+        ]);
+
+        abort_unless($this->storesOf($request)->contains($validated['store_id']), 404);
+        $validated['code'] = strtoupper($validated['code']);
+        abort_if(
+            Coupon::where('code', $validated['code'])->exists(),
+            422, 'Code already taken.'
+        );
+
+        $coupon = Coupon::create($validated + [
+            'vendor_id' => $validated['store_id'],
+            'scope' => 'food',
+            'is_public' => true,
+            'is_active' => true,
+        ]);
+
+        return response()->json(['data' => ['id' => $coupon->id, 'code' => $coupon->code]], 201);
+    }
+
+    public function couponUpdate(Request $request, Coupon $coupon)
+    {
+        abort_unless(
+            $coupon->vendor_id && $this->storesOf($request)->contains($coupon->vendor_id),
+            404
+        );
+
+        $validated = $request->validate([
+            'description' => ['nullable', 'string', 'max:500'],
+            'discount_value' => ['sometimes', 'numeric', 'min:0'],
+            'min_order' => ['nullable', 'numeric', 'min:0'],
+            'max_discount' => ['nullable', 'numeric', 'min:0'],
+            'usage_limit' => ['nullable', 'integer', 'min:1'],
+            'expires_at' => ['nullable', 'date', 'after:now'],
+            'is_active' => ['sometimes', 'boolean'],
+        ]);
+
+        $coupon->update($validated);
+
+        return response()->json(['data' => ['id' => $coupon->id, 'is_active' => (bool) $coupon->fresh()->is_active]]);
+    }
+
+    /** Support threads linked to owned stores (customer opened, staff/vendor answer). */
+    public function chatThreads(Request $request)
+    {
+        $threads = ChatThread::whereIn('vendor_id', $this->storesOf($request))
+            ->orderByDesc('id')
+            ->paginate(min(50, max(1, (int) $request->input('per_page', 15))));
+
+        return response()->json([
+            'data' => $threads->map(fn ($t) => [
+                'id' => $t->id, 'subject' => $t->subject, 'status' => $t->status,
+                'order_ref' => $t->order_ref, 'last_message' => $t->last_message,
+            ]),
+            'meta' => ['current_page' => $threads->currentPage(), 'last_page' => $threads->lastPage(), 'total' => $threads->total()],
+        ]);
+    }
+
+    public function chatShow(Request $request, ChatThread $thread)
+    {
+        abort_unless(
+            $thread->vendor_id && $this->storesOf($request)->contains($thread->vendor_id),
+            404
+        );
+
+        $thread->load(['messages']);
+
+        return response()->json(['data' => [
+            'id' => $thread->id, 'subject' => $thread->subject, 'status' => $thread->status,
+            'order_ref' => $thread->order_ref,
+            'messages' => $thread->messages->map(fn ($m) => [
+                'id' => $m->id,
+                'from_me' => str_starts_with($m->sender_ref ?? '', 'vendor:'),
+                'body' => $m->body,
+                'at' => $m->sent_at?->toIso8601String(),
+            ]),
+        ]]);
+    }
+
+    public function chatReply(Request $request, ChatThread $thread)
+    {
+        abort_unless(
+            $thread->vendor_id && $this->storesOf($request)->contains($thread->vendor_id),
+            404
+        );
+        abort_unless($thread->status === 'open', 422, 'Thread is closed.');
+
+        $validated = $request->validate(['message' => ['required', 'string', 'max:2000']]);
+
+        $message = $thread->messages()->create([
+            'sender_ref' => 'vendor:'.$request->user()->id,
+            'body' => $validated['message'],
+            'sent_at' => now(),
+        ]);
+        $thread->update(['last_message' => substr($validated['message'], 0, 500)]);
+
+        return response()->json(['data' => ['message_id' => $message->id]], 201);
+    }
+
+    /** Subscription plans + my current subscription (purchase stays panel-side). */
+    public function subscription(Request $request)
+    {
+        $plans = SubscriptionPlan::where('is_active', true)->orderBy('price')->get();
+
+        $mine = PlanSubscription::where('subscriber_type', 'owner')
+            ->whereIn('subscriber_id', $this->ownerRequesterIds($request))
+            ->where('status', 'active')
+            ->orderByDesc('ends_at')
+            ->first();
+
+        return response()->json(['data' => [
+            'plans' => $plans->map(fn ($p) => [
+                'id' => $p->id, 'name' => $p->name, 'price' => (float) $p->price,
+                'validity_days' => $p->validity_days, 'features' => $p->features ?? [],
+            ]),
+            'mine' => $mine ? [
+                'plan' => $mine->plan?->only(['id', 'name']),
+                'status' => $mine->status,
+                'ends_at' => $mine->ends_at?->toIso8601String(),
+                'expired' => $mine->ends_at !== null && $mine->ends_at->isPast(),
+            ] : null,
+        ]]);
     }
 }

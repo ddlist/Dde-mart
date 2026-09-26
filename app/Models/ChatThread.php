@@ -13,7 +13,10 @@ class ChatThread extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['legacy_id', 'audience', 'subject', 'last_message', 'status'];
+    protected $fillable = [
+        'legacy_id', 'audience', 'subject', 'last_message', 'status',
+        'order_ref', 'vendor_id', 'driver_id', 'provider_id',
+    ];
 
     /** Application-level defaults (DB defaults alone don't hydrate the model). */
     protected $attributes = ['audience' => 'admin', 'status' => 'open'];

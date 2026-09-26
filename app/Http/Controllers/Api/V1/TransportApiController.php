@@ -105,16 +105,34 @@ class TransportApiController extends Controller
     public function parcelTrack(Request $request, ParcelOrder $order)
     {
         abort_unless($order->sender_phone === $request->user()->phone, 404);
-        $order->load(['history']);
+        $order->load(['history', 'driver']);
 
         return response()->json(['data' => [
             'id' => $order->id, 'number' => $order->number, 'status' => $order->status,
             'total' => (float) $order->total,
+            'driver' => $this->driverPosition($order->driver),
             'timeline' => $order->history->map(fn ($h) => [
                 'from' => $h->from_status, 'to' => $h->to_status,
                 'at' => $h->created_at?->toIso8601String(),
             ]),
         ]]);
+    }
+
+    /** Customer-safe driver card with live position (null until assigned). */
+    protected function driverPosition($driver): ?array
+    {
+        if (! $driver) {
+            return null;
+        }
+
+        return [
+            'id' => $driver->id,
+            'name' => $driver->name,
+            'phone' => $driver->phone,
+            'latitude' => $driver->latitude !== null ? (float) $driver->latitude : null,
+            'longitude' => $driver->longitude !== null ? (float) $driver->longitude : null,
+            'position_at' => $driver->location_updated_at?->toIso8601String(),
+        ];
     }
 
     public function parcelCancel(Request $request, ParcelOrder $order)
@@ -199,7 +217,7 @@ class TransportApiController extends Controller
         return response()->json(['data' => [
             'id' => $order->id, 'number' => $order->number, 'status' => $order->status,
             'total' => (float) $order->total,
-            'driver' => $order->driver?->only(['id', 'name', 'phone']),
+            'driver' => $this->driverPosition($order->driver),
             'timeline' => $order->history->map(fn ($h) => [
                 'from' => $h->from_status, 'to' => $h->to_status,
                 'at' => $h->created_at?->toIso8601String(),
@@ -282,7 +300,7 @@ class TransportApiController extends Controller
         return response()->json(['data' => [
             'id' => $ride->id, 'number' => $ride->number, 'status' => $ride->status,
             'total' => (float) $ride->total,
-            'driver' => $ride->driver?->only(['id', 'name', 'phone']),
+            'driver' => $this->driverPosition($ride->driver),
             'timeline' => $ride->history->map(fn ($h) => [
                 'from' => $h->from_status, 'to' => $h->to_status,
                 'at' => $h->created_at?->toIso8601String(),

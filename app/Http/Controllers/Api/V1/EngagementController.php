@@ -10,6 +10,7 @@ use App\Models\Notification;
 use App\Models\OnboardingSlide;
 use App\Models\Page;
 use App\Models\Setting;
+use App\Models\Story;
 use App\Support\Images;
 use Illuminate\Http\Request;
 
@@ -82,6 +83,23 @@ class EngagementController extends Controller
     public function settings()
     {
         return response()->json(['data' => Setting::allMerged()]);
+    }
+
+    /** Active vendor stories (newest first, capped for the stories rail). */
+    public function stories()
+    {
+        $stories = Story::where('status', 'active')
+            ->with('store:id,name')
+            ->orderByDesc('id')
+            ->limit(30)
+            ->get(['id', 'store_id', 'video_url', 'thumbnail']);
+
+        return response()->json(['data' => $stories->map(fn ($s) => [
+            'id' => $s->id,
+            'store' => $s->store?->only(['id', 'name']),
+            'video_url' => $s->video_url,
+            'thumbnail' => $s->thumbnail,
+        ])]);
     }
 
     /**

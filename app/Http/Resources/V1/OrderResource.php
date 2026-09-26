@@ -26,6 +26,12 @@ class OrderResource extends JsonResource
             'notes' => $this->notes,
             'scheduled_at' => $this->scheduled_at?->toIso8601String(),
             'created_at' => $this->created_at?->toIso8601String(),
+            'driver' => $this->driver ? [
+                'name' => $this->driver->name,
+                'latitude' => $this->driver->latitude !== null ? (float) $this->driver->latitude : null,
+                'longitude' => $this->driver->longitude !== null ? (float) $this->driver->longitude : null,
+                'position_at' => $this->driver->location_updated_at?->toIso8601String(),
+            ] : null,
             'items' => $this->items->map(fn ($item) => [
                 'name' => $item->name,
                 'price' => (float) $item->price,

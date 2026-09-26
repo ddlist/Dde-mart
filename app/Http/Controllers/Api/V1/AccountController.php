@@ -38,7 +38,7 @@ class AccountController extends Controller
             404
         );
 
-        $order->load(['items', 'history']);
+        $order->load(['items', 'history', 'driver']);
 
         return new OrderResource($order);
     }
@@ -57,7 +57,7 @@ class AccountController extends Controller
         $order->update(['status' => Order::CANCELLED]);
         $order->history()->create(['from_status' => Order::PLACED, 'to_status' => Order::CANCELLED]);
 
-        return new OrderResource($order->load(['items', 'history']));
+        return new OrderResource($order->load(['items', 'history', 'driver']));
     }
 
     public function wallet(Request $request)

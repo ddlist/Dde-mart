@@ -29,6 +29,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
     Route::get('/pages', [EngagementController::class, 'pages'])->name('pages');
     Route::get('/pages/{slug}', [EngagementController::class, 'page'])->name('pages.show');
     Route::get('/banners', [EngagementController::class, 'banners'])->name('banners');
+    Route::get('/stories', [EngagementController::class, 'stories'])->name('stories');
     Route::get('/ads', [EngagementController::class, 'ads'])->name('ads');
     Route::get('/settings', [EngagementController::class, 'settings'])->name('settings');
     Route::get('/app-config', [EngagementController::class, 'appConfig'])->name('app-config');
@@ -140,6 +141,9 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::post('/jobs/accept', [DriverApiController::class, 'jobAccept'])->name('jobs.accept');
         Route::post('/jobs/transition', [DriverApiController::class, 'jobTransition'])->name('jobs.transition');
         Route::post('/location', [DriverApiController::class, 'location'])->name('location.update');
+        Route::get('/chat/threads', [DriverApiController::class, 'chatThreads'])->name('chat.threads');
+        Route::get('/chat/threads/{thread}', [DriverApiController::class, 'chatShow'])->name('chat.show');
+        Route::post('/chat/threads/{thread}/reply', [DriverApiController::class, 'chatReply'])->name('chat.reply');
         Route::post('/sos', [SafetyApiController::class, 'sosRaise'])->name('sos.raise');
         Route::post('/uploads', [UploadController::class, 'store'])->name('uploads');
         Route::post('/push-tokens', [EngagementController::class, 'registerToken'])->name('push-tokens.store');
@@ -160,6 +164,13 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::post('/products', [VendorApiController::class, 'productStore'])->name('products.store');
         Route::put('/products/{product}', [VendorApiController::class, 'productUpdate'])->name('products.update');
         Route::post('/products/{product}/toggle', [VendorApiController::class, 'toggleProduct'])->name('products.toggle');
+        Route::get('/coupons', [VendorApiController::class, 'coupons'])->name('coupons');
+        Route::post('/coupons', [VendorApiController::class, 'couponStore'])->name('coupons.store');
+        Route::put('/coupons/{coupon}', [VendorApiController::class, 'couponUpdate'])->name('coupons.update');
+        Route::get('/chat/threads', [VendorApiController::class, 'chatThreads'])->name('chat.threads');
+        Route::get('/chat/threads/{thread}', [VendorApiController::class, 'chatShow'])->name('chat.show');
+        Route::post('/chat/threads/{thread}/reply', [VendorApiController::class, 'chatReply'])->name('chat.reply');
+        Route::get('/subscription', [VendorApiController::class, 'subscription'])->name('subscription');
         Route::get('/payouts', [VendorApiController::class, 'payouts'])->name('payouts');
         Route::post('/payouts', [VendorApiController::class, 'payoutRequest'])->name('payouts.request');
         Route::post('/uploads', [UploadController::class, 'store'])->name('uploads');
