@@ -106,6 +106,21 @@ class WorkforceNotifier
         );
     }
 
+    /** Auto-dispatch offer: order held for one driver until the deadline. */
+    public function jobOffered(Order $order, int $driverId, int $seconds): void
+    {
+        $mins = (int) ceil($seconds / 60);
+
+        $this->notify(
+            'drivers',
+            'workforce.job_offered',
+            'New delivery offer',
+            "Order {$order->number} · {$order->total} — accept within {$mins} min in the driver app.",
+            ['order_id' => (string) $order->id, 'kind' => 'food', 'driver_id' => (string) $driverId],
+            ['order_number' => $order->number, 'customer' => $order->customer_name, 'total' => $order->total],
+        );
+    }
+
     protected function notify(
         string $audience,
         string $templateKey,

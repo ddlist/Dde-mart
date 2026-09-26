@@ -59,7 +59,8 @@ php artisan key:generate --show   # set APP_KEY
 php artisan migrate --force --seed
 php artisan storage:link
 npm run build
-# cron: * * * * * php artisan schedule:send >> /dev/null 2>&1
+# cron: * * * * * php artisan schedule:run >> /dev/null 2>&1
+# (runs dispatch:orders + schedule:send every minute)
 # queue: run a worker if QUEUE_CONNECTION leaves sync
 # env: DB_*, MAIL_*, FIREBASE_CREDENTIALS, MAPS_KEY,
 #      STRIPE_SECRET, RAZORPAY_KEY/SECRET, PAYPAL_* (MODE=live),

@@ -30,12 +30,18 @@ class Driver extends Authenticatable
 
     protected $fillable = [
         'legacy_id', 'kind', 'name', 'phone', 'email', 'photo_path', 'vehicle_info',
-        'zone_id', 'store_id', 'status', 'is_online',
+        'zone_id', 'store_id', 'latitude', 'longitude', 'location_updated_at',
+        'status', 'is_online',
     ];
 
     protected function casts(): array
     {
-        return ['is_online' => 'boolean'];
+        return [
+            'is_online' => 'boolean',
+            'latitude' => 'decimal:7',
+            'longitude' => 'decimal:7',
+            'location_updated_at' => 'datetime',
+        ];
     }
 
     /** Application-level defaults (DB defaults alone don't hydrate the model). */

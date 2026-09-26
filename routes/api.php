@@ -139,6 +139,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::post('/payouts', [DriverApiController::class, 'payoutRequest'])->name('payouts.request');
         Route::post('/jobs/accept', [DriverApiController::class, 'jobAccept'])->name('jobs.accept');
         Route::post('/jobs/transition', [DriverApiController::class, 'jobTransition'])->name('jobs.transition');
+        Route::post('/location', [DriverApiController::class, 'location'])->name('location.update');
         Route::post('/sos', [SafetyApiController::class, 'sosRaise'])->name('sos.raise');
         Route::post('/uploads', [UploadController::class, 'store'])->name('uploads');
         Route::post('/push-tokens', [EngagementController::class, 'registerToken'])->name('push-tokens.store');

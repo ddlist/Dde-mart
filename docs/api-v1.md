@@ -132,6 +132,7 @@ Base URL: `https://<host>/api/v1` · JSON only (`Accept: application/json`).
 | GET | `/api/v1/driver/jobs` | `auth:sanctum,abilities:driver` | jobs |
 | POST | `/api/v1/driver/jobs/accept` | `auth:sanctum,abilities:driver` | jobAccept |
 | POST | `/api/v1/driver/jobs/transition` | `auth:sanctum,abilities:driver` | jobTransition |
+| POST | `/api/v1/driver/location` | `auth:sanctum,abilities:driver` | location |
 | POST | `/api/v1/driver/logout` | `auth:sanctum,abilities:driver` | logout |
 | GET | `/api/v1/driver/me` | `auth:sanctum,abilities:driver` | me |
 | GET | `/api/v1/driver/payouts` | `auth:sanctum,abilities:driver` | payouts |

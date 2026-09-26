@@ -53,9 +53,10 @@ class Order extends Model
 
     protected $fillable = [
         'number', 'type', 'customer_id', 'customer_name', 'customer_email', 'customer_phone',
-        'vendor_id', 'section_id', 'address', 'payment_method',
+        'vendor_id', 'driver_id', 'section_id', 'address', 'payment_method',
         'subtotal', 'discount', 'delivery_charge', 'tip', 'tax', 'total',
         'coupon_code', 'notes', 'status', 'scheduled_at', 'estimated_prep_minutes',
+        'dispatch_expires_at', 'rejected_driver_ids',
     ];
 
     /** Application-level defaults (DB defaults alone don't hydrate the model). */
@@ -76,6 +77,8 @@ class Order extends Model
             'tax' => 'decimal:2',
             'total' => 'decimal:2',
             'scheduled_at' => 'datetime',
+            'dispatch_expires_at' => 'datetime',
+            'rejected_driver_ids' => 'array',
         ];
     }
 
@@ -98,6 +101,19 @@ class Order extends Model
     public function customer(): BelongsTo
     {
         return $this->belongsTo(Customer::class);
+    }
+
+    public function driver(): BelongsTo
+    {
+        return $this->belongsTo(Driver::class);
+    }
+
+    /** Drivers already offered (and timed out) for this order. */
+    public function rejectedDriverIds(): array
+    {
+        return array_values(array_filter(
+            array_map('intval', (array) ($this->rejected_driver_ids ?? []))
+        ));
     }
 
     public function items(): HasMany

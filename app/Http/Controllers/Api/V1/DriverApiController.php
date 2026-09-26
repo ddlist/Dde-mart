@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Models\DocumentType;
+use App\Models\Order;
 use App\Models\ParcelOrder;
 use App\Models\PayoutRequest;
 use App\Models\RentalOrder;
@@ -14,7 +15,7 @@ use Illuminate\Http\Request;
 
 /*
  * DDE-Mart API — driver app surfaces (original). Ability: driver.
- * Jobs across parcel/rental/rides; documents submit; payout requests.
+ * Jobs across food/parcel/rental/rides; documents submit; payout requests.
  */
 class DriverApiController extends Controller
 {
@@ -39,6 +40,23 @@ class DriverApiController extends Controller
         return response()->json(['data' => ['is_online' => (bool) $request->user()->is_online]]);
     }
 
+    /** Live position ping (drives dispatch proximity + freshness). */
+    public function location(Request $request)
+    {
+        $validated = $request->validate([
+            'latitude' => ['required', 'numeric', 'between:-90,90'],
+            'longitude' => ['required', 'numeric', 'between:-180,180'],
+        ]);
+
+        $request->user()->update([
+            'latitude' => $validated['latitude'],
+            'longitude' => $validated['longitude'],
+            'location_updated_at' => now(),
+        ]);
+
+        return response()->json(['data' => ['recorded' => true]]);
+    }
+
     public function jobs(Request $request)
     {
         $driver = $request->user();
@@ -52,12 +70,14 @@ class DriverApiController extends Controller
         ];
 
         $mine = collect()
+            ->merge(Order::where('driver_id', $driver->id)->where('type', 'food')->get()->map(fn ($o) => $shape($o, 'food')))
             ->merge(ParcelOrder::where('driver_id', $driver->id)->get()->map(fn ($o) => $shape($o, 'parcel')))
             ->merge(RentalOrder::where('driver_id', $driver->id)->get()->map(fn ($o) => $shape($o, 'rental')))
             ->merge(Ride::where('driver_id', $driver->id)->get()->map(fn ($o) => $shape($o, 'ride')))
             ->sortByDesc('id')->values();
 
         $pool = collect()
+            ->merge(Order::whereNull('driver_id')->where('type', 'food')->where('status', 'accepted')->limit(20)->get()->map(fn ($o) => $shape($o, 'food')))
             ->merge(ParcelOrder::whereNull('driver_id')->whereIn('status', ['placed', 'accepted'])->limit(20)->get()->map(fn ($o) => $shape($o, 'parcel')))
             ->merge(RentalOrder::whereNull('driver_id')->whereIn('status', ['placed', 'accepted'])->limit(20)->get()->map(fn ($o) => $shape($o, 'rental')))
             ->merge(Ride::whereNull('driver_id')->whereIn('status', ['placed', 'accepted'])->limit(20)->get()->map(fn ($o) => $shape($o, 'ride')));
@@ -150,12 +170,17 @@ class DriverApiController extends Controller
     public function jobAccept(Request $request)
     {
         $validated = $request->validate([
-            'type' => ['required', 'string', 'in:parcel,rental,ride'],
+            'type' => ['required', 'string', 'in:food,parcel,rental,ride'],
             'id' => ['required', 'integer'],
         ]);
 
         $order = $this->findJob($validated['type'], $validated['id']);
         abort_unless($order, 404);
+
+        if ($validated['type'] === 'food') {
+            return $this->acceptFoodJob($request, $order);
+        }
+
         abort_unless($order->driver_id === null && in_array($order->status, ['placed', 'accepted'], true), 422, 'Job unavailable.');
 
         $from = $order->status;
@@ -165,11 +190,47 @@ class DriverApiController extends Controller
         return response()->json(['data' => ['status' => 'accepted']]);
     }
 
+    /**
+     * Food claim: either an outstanding dispatch offer to this driver, or a
+     * pool pickup of a vendor-accepted order (manual mode). Status stays
+     * `accepted`; the claim is recorded on the timeline.
+     */
+    protected function acceptFoodJob(Request $request, Order $order)
+    {
+        $driverId = $request->user()->id;
+
+        if ($order->driver_id === $driverId && $order->dispatch_expires_at) {
+            abort_unless($order->dispatch_expires_at->isFuture(), 422, 'Offer expired.');
+
+            $order->update(['dispatch_expires_at' => null]);
+            // changed_by stays null: the history FK targets staff users, not drivers.
+            $order->history()->create([
+                'from_status' => $order->status, 'to_status' => $order->status,
+                'note' => "Dispatch offer accepted by driver #{$driverId}",
+            ]);
+
+            return response()->json(['data' => ['status' => $order->status]]);
+        }
+
+        abort_unless(
+            $order->driver_id === null && $order->status === Order::ACCEPTED,
+            422, 'Job unavailable.'
+        );
+
+        $order->update(['driver_id' => $driverId]);
+        $order->history()->create([
+            'from_status' => Order::ACCEPTED, 'to_status' => Order::ACCEPTED,
+            'note' => "Claimed from pool by driver #{$driverId}",
+        ]);
+
+        return response()->json(['data' => ['status' => Order::ACCEPTED]]);
+    }
+
     /** Advance an assigned job through its machine. */
     public function jobTransition(Request $request)
     {
         $validated = $request->validate([
-            'type' => ['required', 'string', 'in:parcel,rental,ride'],
+            'type' => ['required', 'string', 'in:food,parcel,rental,ride'],
             'id' => ['required', 'integer'],
             'to' => ['required', 'string'],
             'note' => ['nullable', 'string', 'max:500'],
@@ -203,6 +264,7 @@ class DriverApiController extends Controller
     protected function findJob(string $type, int $id)
     {
         return match ($type) {
+            'food' => Order::where('type', 'food')->find($id),
             'parcel' => ParcelOrder::find($id),
             'rental' => RentalOrder::find($id),
             'ride' => Ride::find($id),
