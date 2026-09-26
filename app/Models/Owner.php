@@ -40,6 +40,11 @@ class Owner extends Authenticatable
         return $this->morphMany(Verification::class, 'verifiable');
     }
 
+    public function pushTokens(): MorphMany
+    {
+        return $this->morphMany(PushToken::class, 'tokenable');
+    }
+
     public function canTransitionTo(string $to): bool
     {
         return in_array($to, static::TRANSITIONS[$this->status] ?? [], true);

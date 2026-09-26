@@ -50,6 +50,8 @@ class DineInController extends Controller
             'status' => 'pending',
         ]);
 
+        app(\App\Services\WorkforceNotifier::class)->dineInPlaced($booking);
+
         return redirect()->route('shop.dinein')->with('success', "Table requested for {$booking->guests}.");
     }
 }

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Laravel\Sanctum\HasApiTokens;
 
@@ -36,6 +37,11 @@ class Provider extends Authenticatable
     public function workers(): HasMany
     {
         return $this->hasMany(ProviderWorker::class);
+    }
+
+    public function pushTokens(): MorphMany
+    {
+        return $this->morphMany(PushToken::class, 'tokenable');
     }
 
     public function canTransitionTo(string $to): bool

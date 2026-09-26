@@ -83,6 +83,8 @@ class LifeApiController extends Controller
 
         $booking->history()->create(['from_status' => null, 'to_status' => 'placed']);
 
+        app(\App\Services\WorkforceNotifier::class)->bookingPlaced($booking);
+
         return response()->json(['data' => ['id' => $booking->id, 'number' => $booking->number]], 201);
     }
 
@@ -145,6 +147,8 @@ class LifeApiController extends Controller
             'special_request' => $validated['special_request'] ?? null,
             'status' => 'pending',
         ]);
+
+        app(\App\Services\WorkforceNotifier::class)->dineInPlaced($booking);
 
         return response()->json(['data' => ['id' => $booking->id, 'status' => 'pending']], 201);
     }

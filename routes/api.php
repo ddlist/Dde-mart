@@ -129,6 +129,8 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::post('/jobs/accept', [DriverApiController::class, 'jobAccept'])->name('jobs.accept');
         Route::post('/jobs/transition', [DriverApiController::class, 'jobTransition'])->name('jobs.transition');
         Route::post('/uploads', [UploadController::class, 'store'])->name('uploads');
+        Route::post('/push-tokens', [EngagementController::class, 'registerToken'])->name('push-tokens.store');
+        Route::delete('/push-tokens', [EngagementController::class, 'unregisterToken'])->name('push-tokens.destroy');
     });
 
     // Vendor/owner surfaces (either ability suffices).
@@ -144,6 +146,8 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::get('/payouts', [VendorApiController::class, 'payouts'])->name('payouts');
         Route::post('/payouts', [VendorApiController::class, 'payoutRequest'])->name('payouts.request');
         Route::post('/uploads', [UploadController::class, 'store'])->name('uploads');
+        Route::post('/push-tokens', [EngagementController::class, 'registerToken'])->name('push-tokens.store');
+        Route::delete('/push-tokens', [EngagementController::class, 'unregisterToken'])->name('push-tokens.destroy');
     });
 
     // Provider app surfaces.
@@ -153,6 +157,8 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::get('/bookings', [ProviderApiController::class, 'bookings'])->name('bookings');
         Route::get('/bookings/{booking}', [ProviderApiController::class, 'booking'])->name('bookings.show');
         Route::post('/uploads', [UploadController::class, 'store'])->name('uploads');
+        Route::post('/push-tokens', [EngagementController::class, 'registerToken'])->name('push-tokens.store');
+        Route::delete('/push-tokens', [EngagementController::class, 'unregisterToken'])->name('push-tokens.destroy');
     });
 
     // Customer uploads.

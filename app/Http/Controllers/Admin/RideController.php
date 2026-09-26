@@ -185,6 +185,8 @@ class RideController extends Controller
         $validated = $request->validate(['driver_id' => ['required', 'integer', 'exists:drivers,id']]);
         $ride->update(['driver_id' => $validated['driver_id']]);
 
+        app(\App\Services\WorkforceNotifier::class)->rideAssigned($ride->fresh());
+
         return redirect()->route('admin.rides.show', $ride)->with('success', 'Driver assigned.');
     }
 }

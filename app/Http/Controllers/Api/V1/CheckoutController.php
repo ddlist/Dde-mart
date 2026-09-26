@@ -121,6 +121,8 @@ class CheckoutController extends Controller
 
         $order->history()->create(['from_status' => null, 'to_status' => 'placed']);
 
+        app(\App\Services\WorkforceNotifier::class)->orderPlaced($order);
+
         if (! empty($quote['coupon']['id'])) {
             Coupon::where('id', $quote['coupon']['id'])->increment('used_count');
         }

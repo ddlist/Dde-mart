@@ -68,6 +68,8 @@ class ServiceController extends Controller
 
         $booking->history()->create(['from_status' => null, 'to_status' => 'placed']);
 
+        app(\App\Services\WorkforceNotifier::class)->bookingPlaced($booking);
+
         return redirect()->route('shop.bookings.track', $booking)
             ->with('success', "Booking {$booking->number} placed.");
     }

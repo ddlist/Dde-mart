@@ -82,6 +82,8 @@ class TransportApiController extends Controller
 
         $order->history()->create(['from_status' => null, 'to_status' => 'placed']);
 
+        app(\App\Services\WorkforceNotifier::class)->parcelPlaced($order);
+
         return response()->json(['data' => ['id' => $order->id, 'number' => $order->number, 'total' => $total]], 201);
     }
 
@@ -169,6 +171,8 @@ class TransportApiController extends Controller
 
         $order->history()->create(['from_status' => null, 'to_status' => 'placed']);
 
+        app(\App\Services\WorkforceNotifier::class)->rentalPlaced($order);
+
         return response()->json(['data' => ['id' => $order->id, 'number' => $order->number]], 201);
     }
 
@@ -249,6 +253,8 @@ class TransportApiController extends Controller
         ]);
 
         $ride->history()->create(['from_status' => null, 'to_status' => 'placed']);
+
+        app(\App\Services\WorkforceNotifier::class)->rideRequested($ride);
 
         return response()->json(['data' => ['id' => $ride->id, 'number' => $ride->number]], 201);
     }

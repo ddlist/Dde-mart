@@ -56,6 +56,8 @@ class RentalController extends Controller
 
         $order->history()->create(['from_status' => null, 'to_status' => 'placed']);
 
+        app(\App\Services\WorkforceNotifier::class)->rentalPlaced($order);
+
         return redirect()->route('shop.rental.track', $order)
             ->with('success', "Rental {$order->number} booked.");
     }

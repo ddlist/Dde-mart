@@ -82,6 +82,8 @@ class ParcelController extends Controller
 
         $order->history()->create(['from_status' => null, 'to_status' => 'placed']);
 
+        app(\App\Services\WorkforceNotifier::class)->parcelPlaced($order);
+
         return redirect()->route('shop.parcel.track', $order)
             ->with('success', "Parcel {$order->number} booked. Pay {$total} on delivery.");
     }
