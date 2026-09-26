@@ -115,6 +115,8 @@ class EngagementController extends Controller
                 'customer' => (string) Setting::get('min_app_customer', '1.0.0'),
                 'driver' => (string) Setting::get('min_app_driver', '1.0.0'),
                 'vendor' => (string) Setting::get('min_app_vendor', '1.0.0'),
+                'provider' => (string) Setting::get('min_app_provider', '1.0.0'),
+                'worker' => (string) Setting::get('min_app_worker', '1.0.0'),
             ],
             'support' => [
                 'email' => (string) Setting::get('support_email', ''),

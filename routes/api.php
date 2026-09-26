@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\V1\TransportApiController;
 use App\Http\Controllers\Api\V1\UploadController;
 use App\Http\Controllers\Api\V1\VendorApiController;
 use App\Http\Controllers\Api\V1\WorkAuthController;
+use App\Http\Controllers\Api\V1\WorkerApiController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -193,7 +194,23 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::post('/workers', [ProviderApiController::class, 'workerStore'])->name('workers.store');
         Route::put('/workers/{worker}', [ProviderApiController::class, 'workerUpdate'])->name('workers.update');
         Route::post('/workers/{worker}/toggle', [ProviderApiController::class, 'workerToggle'])->name('workers.toggle');
+        Route::get('/payouts', [ProviderApiController::class, 'payouts'])->name('payouts');
+        Route::post('/payouts', [ProviderApiController::class, 'payoutRequest'])->name('payouts.request');
         Route::post('/uploads', [UploadController::class, 'store'])->name('uploads');
+        Route::post('/push-tokens', [EngagementController::class, 'registerToken'])->name('push-tokens.store');
+        Route::delete('/push-tokens', [EngagementController::class, 'unregisterToken'])->name('push-tokens.destroy');
+    });
+
+    // Handyman (provider worker) app surfaces.
+    Route::middleware(['auth:sanctum', 'abilities:worker'])->prefix('worker')->name('worker.')->group(function () {
+        Route::get('/me', [WorkAuthController::class, 'me'])->name('me');
+        Route::post('/logout', [WorkAuthController::class, 'logout'])->name('logout');
+        Route::get('/jobs', [WorkerApiController::class, 'jobs'])->name('jobs');
+        Route::get('/jobs/{booking}', [WorkerApiController::class, 'job'])->name('jobs.show');
+        Route::post('/jobs/{booking}/transition', [WorkerApiController::class, 'jobTransition'])->name('jobs.transition');
+        Route::get('/payouts', [WorkerApiController::class, 'payouts'])->name('payouts');
+        Route::post('/payouts', [WorkerApiController::class, 'payoutRequest'])->name('payouts.request');
+        Route::post('/sos', [SafetyApiController::class, 'sosRaise'])->name('sos.raise');
         Route::post('/push-tokens', [EngagementController::class, 'registerToken'])->name('push-tokens.store');
         Route::delete('/push-tokens', [EngagementController::class, 'unregisterToken'])->name('push-tokens.destroy');
     });

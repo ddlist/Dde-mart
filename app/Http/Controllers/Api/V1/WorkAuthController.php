@@ -7,18 +7,19 @@ use App\Models\Driver;
 use App\Models\OtpCode;
 use App\Models\Owner;
 use App\Models\Provider;
+use App\Models\ProviderWorker;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 /*
  * DDE-Mart API — workforce auth (original). OTP-only login for driver, vendor
- * (owner directory), owner, provider accounts, resolved by phone per role.
- * Tokens carry the singular role ability (driver|vendor|owner|provider).
+ * (owner directory), owner, provider, worker (provider staff) accounts,
+ * resolved by phone per role. Tokens carry the singular role ability.
  */
 class WorkAuthController extends Controller
 {
-    public const ROLES = ['driver', 'vendor', 'owner', 'provider'];
+    public const ROLES = ['driver', 'vendor', 'owner', 'provider', 'worker'];
 
     public function otpRequest(Request $request): JsonResponse
     {
@@ -70,8 +71,8 @@ class WorkAuthController extends Controller
             return response()->json(['message' => 'No account for this number.'], 404);
         }
 
-        if (($record->status ?? 'active') !== 'active') {
-            return response()->json(['message' => 'Account is '.$record->status.'.'], 403);
+        if (($record->status ?? 'active') !== 'active' || ($record->is_active ?? true) === false) {
+            return response()->json(['message' => 'Account is '.($record->status ?? 'inactive').'.'], 403);
         }
 
         $token = $record->createToken('work-app', [$validated['role']])->plainTextToken;
@@ -111,6 +112,7 @@ class WorkAuthController extends Controller
             'driver' => Driver::where('phone', $phone)->first(),
             'vendor', 'owner' => Owner::where('phone', $phone)->first(),
             'provider' => Provider::where('phone', $phone)->first(),
+            'worker' => ProviderWorker::where('phone', $phone)->first(),
         };
     }
 }

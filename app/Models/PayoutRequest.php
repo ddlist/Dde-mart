@@ -18,7 +18,7 @@ class PayoutRequest extends Model
 {
     use HasFactory;
 
-    public const REQUESTERS = ['vendor', 'driver', 'provider', 'owner'];
+    public const REQUESTERS = ['vendor', 'driver', 'provider', 'owner', 'worker'];
 
     public const METHODS = ['bank', 'paypal', 'stripe', 'razorpay', 'flutterwave', 'cash'];
 

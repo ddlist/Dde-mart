@@ -31,6 +31,8 @@ return [
         'min_app_customer' => '1.0.0',
         'min_app_driver' => '1.0.0',
         'min_app_vendor' => '1.0.0',
+        'min_app_provider' => '1.0.0',
+        'min_app_worker' => '1.0.0',
     ],
     'groups' => [
         'general' => ['label' => 'General', 'keys' => ['site_name', 'support_email', 'support_phone']],
@@ -39,6 +41,6 @@ return [
         'payouts' => ['label' => 'Payouts', 'keys' => ['min_withdrawal']],
         'geo' => ['label' => 'Geo', 'keys' => ['distance_unit', 'default_radius_km', 'parcel_per_km']],
         'platform' => ['label' => 'Platform', 'keys' => ['business_model']],
-        'apps' => ['label' => 'Mobile apps', 'keys' => ['apps_maintenance', 'min_app_customer', 'min_app_driver', 'min_app_vendor']],
+        'apps' => ['label' => 'Mobile apps', 'keys' => ['apps_maintenance', 'min_app_customer', 'min_app_driver', 'min_app_vendor', 'min_app_provider', 'min_app_worker']],
     ],
 ];

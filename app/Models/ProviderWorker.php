@@ -3,15 +3,17 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Laravel\Sanctum\HasApiTokens;
 
 /*
  * DDE-Mart Admin — ProviderWorker model (original). Provider staff.
  */
-class ProviderWorker extends Model
+class ProviderWorker extends Authenticatable
 {
-    use HasFactory;
+    use HasFactory, HasApiTokens;
 
     protected $fillable = ['legacy_id', 'provider_id', 'name', 'phone', 'email', 'is_active'];
 
@@ -26,5 +28,10 @@ class ProviderWorker extends Model
     public function provider(): BelongsTo
     {
         return $this->belongsTo(Provider::class);
+    }
+
+    public function pushTokens(): MorphMany
+    {
+        return $this->morphMany(PushToken::class, 'tokenable');
     }
 }

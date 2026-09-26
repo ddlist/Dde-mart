@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Models\PayoutRequest;
 use App\Models\ProviderBooking;
 use App\Models\ProviderService;
 use App\Models\ProviderWorker;
@@ -187,5 +188,42 @@ class ProviderApiController extends Controller
         $worker->update(['is_active' => ! $worker->is_active]);
 
         return response()->json(['data' => ['is_active' => (bool) $worker->fresh()->is_active]]);
+    }
+
+    public function payouts(Request $request)
+    {
+        $rows = PayoutRequest::where('requester_type', 'provider')
+            ->where('requester_id', $request->user()->id)
+            ->orderByDesc('id')
+            ->paginate(min(50, max(1, (int) $request->input('per_page', 15))));
+
+        return response()->json([
+            'data' => $rows->map(fn ($p) => [
+                'id' => $p->id, 'amount' => (float) $p->amount,
+                'method' => $p->method, 'status' => $p->status,
+            ]),
+            'meta' => ['current_page' => $rows->currentPage(), 'last_page' => $rows->lastPage(), 'total' => $rows->total()],
+        ]);
+    }
+
+    public function payoutRequest(Request $request)
+    {
+        $validated = $request->validate([
+            'amount' => ['required', 'numeric', 'min:1'],
+            'method' => ['required', 'string', 'in:'.implode(',', PayoutRequest::METHODS)],
+            'method_details' => ['nullable', 'array'],
+        ]);
+
+        $payout = PayoutRequest::create([
+            'requester_type' => 'provider',
+            'requester_id' => $request->user()->id,
+            'requester_name' => $request->user()->name,
+            'amount' => $validated['amount'],
+            'method' => $validated['method'],
+            'method_details' => $validated['method_details'] ?? null,
+            'status' => 'pending',
+        ]);
+
+        return response()->json(['data' => ['id' => $payout->id, 'status' => 'pending']], 201);
     }
 }

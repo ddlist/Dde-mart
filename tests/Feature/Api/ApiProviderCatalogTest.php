@@ -90,4 +90,20 @@ class ApiProviderCatalogTest extends TestCase
         $this->putJson("/api/v1/provider/workers/{$workerId}", ['name' => 'Ali Raza'], $auth)->assertOk();
         $this->assertEquals('Ali Raza', ProviderWorker::find($workerId)->name);
     }
+
+    public function test_payouts_request_and_list(): void
+    {
+        $auth = ['Authorization' => 'Bearer '.$this->providerToken()];
+
+        $req = $this->postJson('/api/v1/provider/payouts', [
+            'amount' => 2000, 'method' => 'bank',
+        ], $auth)->assertCreated()->assertJsonPath('data.status', 'pending');
+
+        $list = $this->getJson('/api/v1/provider/payouts', $auth)->assertOk();
+        $list->assertJsonCount(1, 'data');
+        $this->assertEquals($req->json('data.id'), $list->json('data.0.id'));
+
+        Auth::forgetGuards();
+        $this->getJson('/api/v1/provider/payouts')->assertStatus(401);
+    }
 }

@@ -127,6 +127,9 @@ Base URL: `https://<host>/api/v1` · JSON only (`Accept: application/json`).
 | Method | Path | Auth | Handler |
 |---|---|---|---|
 | POST | `/api/v1/driver/availability` | `auth:sanctum,abilities:driver` | availability |
+| GET | `/api/v1/driver/chat/threads` | `auth:sanctum,abilities:driver` | chatThreads |
+| GET | `/api/v1/driver/chat/threads/{thread}` | `auth:sanctum,abilities:driver` | chatShow |
+| POST | `/api/v1/driver/chat/threads/{thread}/reply` | `auth:sanctum,abilities:driver` | chatReply |
 | GET | `/api/v1/driver/documents` | `auth:sanctum,abilities:driver` | documents |
 | POST | `/api/v1/driver/documents` | `auth:sanctum,abilities:driver` | documentSubmit |
 | GET | `/api/v1/driver/jobs` | `auth:sanctum,abilities:driver` | jobs |
@@ -147,6 +150,12 @@ Base URL: `https://<host>/api/v1` · JSON only (`Accept: application/json`).
 
 | Method | Path | Auth | Handler |
 |---|---|---|---|
+| GET | `/api/v1/vendor/chat/threads` | `auth:sanctum,ability:vendor,owner` | chatThreads |
+| GET | `/api/v1/vendor/chat/threads/{thread}` | `auth:sanctum,ability:vendor,owner` | chatShow |
+| POST | `/api/v1/vendor/chat/threads/{thread}/reply` | `auth:sanctum,ability:vendor,owner` | chatReply |
+| GET | `/api/v1/vendor/coupons` | `auth:sanctum,ability:vendor,owner` | coupons |
+| POST | `/api/v1/vendor/coupons` | `auth:sanctum,ability:vendor,owner` | couponStore |
+| PUT | `/api/v1/vendor/coupons/{coupon}` | `auth:sanctum,ability:vendor,owner` | couponUpdate |
 | GET | `/api/v1/vendor/dinein` | `auth:sanctum,ability:vendor,owner` | dinein |
 | POST | `/api/v1/vendor/dinein/{booking}/transition` | `auth:sanctum,ability:vendor,owner` | dineinTransition |
 | POST | `/api/v1/vendor/logout` | `auth:sanctum,ability:vendor,owner` | logout |
@@ -163,6 +172,7 @@ Base URL: `https://<host>/api/v1` · JSON only (`Accept: application/json`).
 | POST | `/api/v1/vendor/push-tokens` | `auth:sanctum,ability:vendor,owner` | registerToken |
 | GET | `/api/v1/vendor/stores` | `auth:sanctum,ability:vendor,owner` | stores |
 | POST | `/api/v1/vendor/stores/{store}/toggle` | `auth:sanctum,ability:vendor,owner` | toggleStore |
+| GET | `/api/v1/vendor/subscription` | `auth:sanctum,ability:vendor,owner` | subscription |
 | POST | `/api/v1/vendor/uploads` | `auth:sanctum,ability:vendor,owner` | store |
 
 ## Provider app
@@ -174,6 +184,8 @@ Base URL: `https://<host>/api/v1` · JSON only (`Accept: application/json`).
 | POST | `/api/v1/provider/bookings/{booking}/transition` | `auth:sanctum,abilities:provider` | bookingTransition |
 | POST | `/api/v1/provider/logout` | `auth:sanctum,abilities:provider` | logout |
 | GET | `/api/v1/provider/me` | `auth:sanctum,abilities:provider` | me |
+| GET | `/api/v1/provider/payouts` | `auth:sanctum,abilities:provider` | payouts |
+| POST | `/api/v1/provider/payouts` | `auth:sanctum,abilities:provider` | payoutRequest |
 | DELETE | `/api/v1/provider/push-tokens` | `auth:sanctum,abilities:provider` | unregisterToken |
 | POST | `/api/v1/provider/push-tokens` | `auth:sanctum,abilities:provider` | registerToken |
 | GET | `/api/v1/provider/services` | `auth:sanctum,abilities:provider` | services |
@@ -191,3 +203,14 @@ Base URL: `https://<host>/api/v1` · JSON only (`Accept: application/json`).
 | Method | Path | Auth | Handler |
 |---|---|---|---|
 | GET | `/api/v1/app-config` | public | appConfig |
+| GET | `/api/v1/stories` | public | stories |
+| GET | `/api/v1/worker/jobs` | `auth:sanctum` | jobs |
+| GET | `/api/v1/worker/jobs/{booking}` | `auth:sanctum` | job |
+| POST | `/api/v1/worker/jobs/{booking}/transition` | `auth:sanctum` | jobTransition |
+| POST | `/api/v1/worker/logout` | `auth:sanctum` | logout |
+| GET | `/api/v1/worker/me` | `auth:sanctum` | me |
+| GET | `/api/v1/worker/payouts` | `auth:sanctum` | payouts |
+| POST | `/api/v1/worker/payouts` | `auth:sanctum` | payoutRequest |
+| DELETE | `/api/v1/worker/push-tokens` | `auth:sanctum` | unregisterToken |
+| POST | `/api/v1/worker/push-tokens` | `auth:sanctum` | registerToken |
+| POST | `/api/v1/worker/sos` | `auth:sanctum` | sosRaise |

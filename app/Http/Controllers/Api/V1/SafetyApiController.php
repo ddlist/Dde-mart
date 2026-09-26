@@ -61,7 +61,8 @@ class SafetyApiController extends Controller
 
         $user = $request->user();
         $abilities = $user->currentAccessToken()?->abilities ?? [];
-        $reporterType = in_array('driver', $abilities, true) ? 'driver' : 'customer';
+        $reporterType = in_array('driver', $abilities, true) ? 'driver'
+            : (in_array('worker', $abilities, true) ? 'worker' : 'customer');
 
         $alert = SosAlert::create([
             'order_ref' => $validated['order_ref'] ?? null,
