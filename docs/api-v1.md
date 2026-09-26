@@ -141,6 +141,7 @@ Base URL: `https://<host>/api/v1` · JSON only (`Accept: application/json`).
 | GET | `/api/v1/driver/payouts` | `auth:sanctum,abilities:driver` | payouts |
 | POST | `/api/v1/driver/payouts` | `auth:sanctum,abilities:driver` | payoutRequest |
 | GET | `/api/v1/driver/profile` | `auth:sanctum,abilities:driver` | profile |
+| PUT | `/api/v1/driver/profile` | `auth:sanctum,abilities:driver` | profileUpdate |
 | DELETE | `/api/v1/driver/push-tokens` | `auth:sanctum,abilities:driver` | unregisterToken |
 | POST | `/api/v1/driver/push-tokens` | `auth:sanctum,abilities:driver` | registerToken |
 | POST | `/api/v1/driver/sos` | `auth:sanctum,abilities:driver` | sosRaise |

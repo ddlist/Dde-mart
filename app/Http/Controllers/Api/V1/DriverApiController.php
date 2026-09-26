@@ -33,6 +33,19 @@ class DriverApiController extends Controller
         ]]);
     }
 
+    /** Edit own name + vehicle info (phone is the login identity: immutable). */
+    public function profileUpdate(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => ['sometimes', 'string', 'max:200'],
+            'vehicle_info' => ['nullable', 'string', 'max:500'],
+        ]);
+
+        $request->user()->update($validated);
+
+        return response()->json(['data' => ['updated' => true]]);
+    }
+
     public function availability(Request $request)
     {
         $validated = $request->validate(['is_online' => ['required', 'boolean']]);

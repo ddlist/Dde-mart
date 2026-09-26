@@ -133,6 +133,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::get('/me', [WorkAuthController::class, 'me'])->name('me');
         Route::post('/logout', [WorkAuthController::class, 'logout'])->name('logout');
         Route::get('/profile', [DriverApiController::class, 'profile'])->name('profile');
+        Route::put('/profile', [DriverApiController::class, 'profileUpdate'])->name('profile.update');
         Route::post('/availability', [DriverApiController::class, 'availability'])->name('availability');
         Route::get('/jobs', [DriverApiController::class, 'jobs'])->name('jobs');
         Route::get('/documents', [DriverApiController::class, 'documents'])->name('documents');
