@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\PayoutRequest;
 use App\Models\Product;
 use App\Models\Store;
+use App\Models\TableBooking;
 use App\Support\Images;
 use Illuminate\Http\Request;
 
@@ -147,6 +148,45 @@ class VendorApiController extends Controller
         $from = $order->status;
         $order->update(['status' => $validated['to']]);
         $order->history()->create(['from_status' => $from, 'to_status' => $validated['to']]);
+
+        return response()->json(['data' => ['status' => $validated['to']]]);
+    }
+
+    /** Table bookings for owned stores (dine-in inbox). */
+    public function dinein(Request $request)
+    {
+        $storeIds = $this->storesOf($request);
+
+        $bookings = TableBooking::whereIn('store_id', $storeIds)
+            ->when($request->filled('status'), fn ($q) => $q->where('status', $request->input('status')))
+            ->orderByDesc('id')
+            ->paginate(min(50, max(1, (int) $request->input('per_page', 15))));
+
+        return response()->json([
+            'data' => $bookings->map(fn ($b) => [
+                'id' => $b->id, 'store_id' => $b->store_id,
+                'guest' => $b->guest_name, 'guests' => $b->guests,
+                'booked_for' => $b->booked_for?->toIso8601String(),
+                'status' => $b->status,
+            ]),
+            'meta' => ['current_page' => $bookings->currentPage(), 'last_page' => $bookings->lastPage(), 'total' => $bookings->total()],
+        ]);
+    }
+
+    /** Confirm/seat/complete/cancel a table booking of an owned store. */
+    public function dineinTransition(Request $request, TableBooking $booking)
+    {
+        $validated = $request->validate([
+            'to' => ['required', 'string', 'in:confirmed,seated,completed,cancelled'],
+        ]);
+
+        abort_unless(
+            $booking->store_id && $this->storesOf($request)->contains($booking->store_id),
+            404
+        );
+        abort_unless($booking->canTransitionTo($validated['to']), 422, 'Illegal transition.');
+
+        $booking->update(['status' => $validated['to']]);
 
         return response()->json(['data' => ['status' => $validated['to']]]);
     }

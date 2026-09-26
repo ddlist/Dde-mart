@@ -141,6 +141,8 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::post('/stores/{store}/toggle', [VendorApiController::class, 'toggleStore'])->name('stores.toggle');
         Route::get('/orders', [VendorApiController::class, 'orders'])->name('orders');
         Route::post('/orders/{order}/transition', [VendorApiController::class, 'orderTransition'])->name('orders.transition');
+        Route::get('/dinein', [VendorApiController::class, 'dinein'])->name('dinein');
+        Route::post('/dinein/{booking}/transition', [VendorApiController::class, 'dineinTransition'])->name('dinein.transition');
         Route::get('/products', [VendorApiController::class, 'products'])->name('products');
         Route::post('/products/{product}/toggle', [VendorApiController::class, 'toggleProduct'])->name('products.toggle');
         Route::get('/payouts', [VendorApiController::class, 'payouts'])->name('payouts');
@@ -156,6 +158,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::post('/logout', [WorkAuthController::class, 'logout'])->name('logout');
         Route::get('/bookings', [ProviderApiController::class, 'bookings'])->name('bookings');
         Route::get('/bookings/{booking}', [ProviderApiController::class, 'booking'])->name('bookings.show');
+        Route::post('/bookings/{booking}/transition', [ProviderApiController::class, 'bookingTransition'])->name('bookings.transition');
         Route::post('/uploads', [UploadController::class, 'store'])->name('uploads');
         Route::post('/push-tokens', [EngagementController::class, 'registerToken'])->name('push-tokens.store');
         Route::delete('/push-tokens', [EngagementController::class, 'unregisterToken'])->name('push-tokens.destroy');

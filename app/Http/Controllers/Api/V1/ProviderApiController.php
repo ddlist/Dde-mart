@@ -48,4 +48,21 @@ class ProviderApiController extends Controller
             ]),
         ]]);
     }
+
+    /** Move an owned booking through its status machine. */
+    public function bookingTransition(Request $request, ProviderBooking $booking)
+    {
+        $validated = $request->validate([
+            'to' => ['required', 'string', 'in:accepted,ongoing,completed,cancelled,rejected'],
+        ]);
+
+        abort_unless($booking->provider_id === $request->user()->id, 404);
+        abort_unless($booking->canTransitionTo($validated['to']), 422, 'Illegal transition.');
+
+        $from = $booking->status;
+        $booking->update(['status' => $validated['to']]);
+        $booking->history()->create(['from_status' => $from, 'to_status' => $validated['to']]);
+
+        return response()->json(['data' => ['status' => $validated['to']]]);
+    }
 }
