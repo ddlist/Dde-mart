@@ -31,6 +31,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
     Route::get('/banners', [EngagementController::class, 'banners'])->name('banners');
     Route::get('/ads', [EngagementController::class, 'ads'])->name('ads');
     Route::get('/settings', [EngagementController::class, 'settings'])->name('settings');
+    Route::get('/app-config', [EngagementController::class, 'appConfig'])->name('app-config');
     Route::get('/onboarding', [EngagementController::class, 'onboarding'])->name('onboarding');
     Route::get('/languages', [EngagementController::class, 'languages'])->name('languages');
     Route::get('/categories', [CatalogController::class, 'categories'])->name('categories');
@@ -52,6 +53,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
     // Authenticated customer routes.
     Route::middleware(['auth:sanctum', 'abilities:customer'])->group(function () {
         Route::get('/me', [AuthController::class, 'me'])->name('me');
+        Route::delete('/me', [AuthController::class, 'destroy'])->name('me.destroy');
         Route::post('/auth/logout', [AuthController::class, 'logout'])->name('auth.logout');
 
         // Commerce.

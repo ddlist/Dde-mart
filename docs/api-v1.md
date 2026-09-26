@@ -72,6 +72,7 @@ Base URL: `https://<host>/api/v1` · JSON only (`Accept: application/json`).
 | POST | `/api/v1/coupons/validate` | `auth:sanctum,abilities:customer` | validateCoupon |
 | GET | `/api/v1/favorites` | `auth:sanctum,abilities:customer` | favorites |
 | POST | `/api/v1/favorites/toggle` | `auth:sanctum,abilities:customer` | favoriteToggle |
+| DELETE | `/api/v1/me` | `auth:sanctum,abilities:customer` | destroy |
 | GET | `/api/v1/me` | `auth:sanctum,abilities:customer` | me |
 | GET | `/api/v1/orders` | `auth:sanctum,abilities:customer` | orders |
 | GET | `/api/v1/orders/{order}` | `auth:sanctum,abilities:customer` | order |
@@ -181,3 +182,9 @@ Base URL: `https://<host>/api/v1` · JSON only (`Accept: application/json`).
 | POST | `/api/v1/provider/workers` | `auth:sanctum,abilities:provider` | workerStore |
 | PUT | `/api/v1/provider/workers/{worker}` | `auth:sanctum,abilities:provider` | workerUpdate |
 | POST | `/api/v1/provider/workers/{worker}/toggle` | `auth:sanctum,abilities:provider` | workerToggle |
+
+## Other
+
+| Method | Path | Auth | Handler |
+|---|---|---|---|
+| GET | `/api/v1/app-config` | public | appConfig |

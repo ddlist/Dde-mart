@@ -84,6 +84,27 @@ class EngagementController extends Controller
         return response()->json(['data' => Setting::allMerged()]);
     }
 
+    /**
+     * Mobile launch gate: minimum supported app versions per audience plus
+     * the maintenance flag and support contacts. Apps must hard-block below
+     * their minimum and show maintenance UI when the flag is set.
+     */
+    public function appConfig()
+    {
+        return response()->json(['data' => [
+            'maintenance' => Setting::get('apps_maintenance', '0') === '1',
+            'min_versions' => [
+                'customer' => (string) Setting::get('min_app_customer', '1.0.0'),
+                'driver' => (string) Setting::get('min_app_driver', '1.0.0'),
+                'vendor' => (string) Setting::get('min_app_vendor', '1.0.0'),
+            ],
+            'support' => [
+                'email' => (string) Setting::get('support_email', ''),
+                'phone' => (string) Setting::get('support_phone', ''),
+            ],
+        ]]);
+    }
+
     public function onboarding(Request $request)
     {
         $slides = OnboardingSlide::where('is_active', true)

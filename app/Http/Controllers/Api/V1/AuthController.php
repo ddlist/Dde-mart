@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Str;
 
 /*
  * DDE-Mart API — customer auth (original). OTP-first; passwords optional.
@@ -126,6 +127,36 @@ class AuthController extends Controller
         $request->user()->currentAccessToken()->delete();
 
         return response()->json(['data' => ['logged_out' => true]]);
+    }
+
+    /**
+     * Delete my account (store-compliance). Tokens revoked, push tokens
+     * dropped, identity anonymized; order records keep their snapshots.
+     */
+    public function destroy(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'password' => ['nullable', 'string', 'max:100'],
+        ]);
+
+        $customer = $request->user();
+
+        if ($customer->password && ! Hash::check($validated['password'] ?? '', $customer->password)) {
+            return response()->json(['message' => 'Password confirmation required.'], 422);
+        }
+
+        $customer->tokens()->delete();
+        $customer->pushTokens()->delete();
+        $customer->update([
+            'name' => 'Deleted user',
+            'phone' => 'deleted:'.$customer->id.':'.now()->timestamp,
+            'email' => null,
+            'password' => Str::random(40),
+            'avatar_path' => null,
+            'is_active' => false,
+        ]);
+
+        return response()->json(['data' => ['deleted' => true]]);
     }
 
     /** Step 1 of password reset: code to an existing account's phone. */

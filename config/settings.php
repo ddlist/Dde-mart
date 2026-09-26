@@ -22,6 +22,11 @@ return [
         'parcel_per_km' => '2',
         // Platform
         'business_model' => 'commission',
+        // Mobile apps (editable in admin; read by GET /api/v1/app-config)
+        'apps_maintenance' => '0',
+        'min_app_customer' => '1.0.0',
+        'min_app_driver' => '1.0.0',
+        'min_app_vendor' => '1.0.0',
     ],
     'groups' => [
         'general' => ['label' => 'General', 'keys' => ['site_name', 'support_email', 'support_phone']],
@@ -29,5 +34,6 @@ return [
         'payouts' => ['label' => 'Payouts', 'keys' => ['min_withdrawal']],
         'geo' => ['label' => 'Geo', 'keys' => ['distance_unit', 'default_radius_km', 'parcel_per_km']],
         'platform' => ['label' => 'Platform', 'keys' => ['business_model']],
+        'apps' => ['label' => 'Mobile apps', 'keys' => ['apps_maintenance', 'min_app_customer', 'min_app_driver', 'min_app_vendor']],
     ],
 ];
