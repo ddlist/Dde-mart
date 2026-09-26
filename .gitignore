@@ -25,3 +25,6 @@ yarn-error.log
 /*.sql
 /rehost-*.php
 /scratch-*.php
+
+# Local junk, never commit.
+*.zip

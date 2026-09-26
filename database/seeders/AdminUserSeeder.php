@@ -21,10 +21,10 @@ class AdminUserSeeder extends Seeder
         );
 
         User::updateOrCreate(
-            ['email' => 'admin@dde-mart.local'],
+            ['email' => 'admin@email.com'],
             [
                 'name' => 'DDE-Mart Admin',
-                'password' => 'password',
+                'password' => '12345678',
                 'role_id' => $role->id,
                 'email_verified_at' => now(),
             ],

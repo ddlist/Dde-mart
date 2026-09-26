@@ -11,14 +11,14 @@ copied — behavior is reimplemented from studied flows. See `../../AGENT.md` fo
 cp .env.example .env
 # MySQL: CREATE DATABASE dde_mart_admin; set DB_* (root/123456 local)
 php artisan key:generate
-php artisan migrate --seed   # seeds Super Admin role + admin@dde-mart.local / password
+php artisan migrate --seed   # seeds Super Admin role + admin@email.com / 12345678
 npm install
 npm run dev   # or: npm run build
 php artisan serve
 ```
 
 Open http://127.0.0.1:8000 → `/login` → `/admin` dashboard.
-Default login: `admin@dde-mart.local` / `password` (change immediately).
+Default login: `admin@email.com` / `12345678` (change immediately).
 
 ## Tests
 
@@ -67,7 +67,7 @@ npm run build
 #      PAYTM_*, FLW_SECRET_KEY, PAYOUT_CURRENCY
 ```
 
-Then: change `admin@dde-mart.local` password, grant staff roles (new `transport`,
+Then: change `admin@email.com` password, grant staff roles (new `transport`,
 `drivers`, `owners` groups need explicit grants — super-admin bypasses), test one
 payout per gateway in sandbox before `PAYPAL_MODE=live`.
 

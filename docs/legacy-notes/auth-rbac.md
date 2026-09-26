@@ -39,5 +39,5 @@ Studied 2026-09-25 from the previous admin panel (read-only reference):
 - Middleware alias `admin.can:<group>[,<ability>]`: guests → login (via `auth`), wrong role →
   `403` view. `roles.is_super` bypasses everything. No session stuffing.
 - Login-only auth (`/login`, `POST /login`, `POST /logout`), throttled, intended-redirect.
-- Seeder: `Super Admin` role (`is_super`) + `admin@dde-mart.local`. Super role can't be
+- Seeder: `Super Admin` role (`is_super`) + `admin@email.com`. Super role can't be
   edited down or deleted.
