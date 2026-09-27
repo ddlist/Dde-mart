@@ -24,6 +24,7 @@ class OrderResource extends JsonResource
             'total' => (float) $this->total,
             'coupon_code' => $this->coupon_code,
             'notes' => $this->notes,
+            'address' => $this->address,
             'scheduled_at' => $this->scheduled_at?->toIso8601String(),
             'created_at' => $this->created_at?->toIso8601String(),
             'driver' => $this->driver ? [
@@ -33,6 +34,7 @@ class OrderResource extends JsonResource
                 'position_at' => $this->driver->location_updated_at?->toIso8601String(),
             ] : null,
             'items' => $this->items->map(fn ($item) => [
+                'product_id' => $item->product_id,
                 'name' => $item->name,
                 'price' => (float) $item->price,
                 'quantity' => $item->quantity,
