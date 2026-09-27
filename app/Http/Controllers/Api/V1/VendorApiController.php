@@ -59,6 +59,59 @@ class VendorApiController extends Controller
         ]);
     }
 
+    /** One owned order with items + status timeline for the detail screen. */
+    public function orderShow(Request $request, Order $order)
+    {
+        abort_unless(in_array($order->vendor_id, $this->storesOf($request)->all()), 404);
+        $order->load(['items', 'history']);
+
+        return response()->json(['data' => [
+            'id' => $order->id, 'number' => $order->number,
+            'status' => $order->status,
+            'payment_method' => $order->payment_method,
+            'customer_name' => $order->customer_name,
+            'customer_phone' => $order->customer_phone,
+            'address' => $order->address,
+            'notes' => $order->notes,
+            'scheduled_at' => $order->scheduled_at?->toIso8601String(),
+            'created_at' => $order->created_at?->toIso8601String(),
+            'subtotal' => (float) $order->subtotal,
+            'discount' => (float) $order->discount,
+            'delivery_charge' => (float) $order->delivery_charge,
+            'tax' => (float) $order->tax,
+            'total' => (float) $order->total,
+            'coupon_code' => $order->coupon_code,
+            'items' => $order->items->map(fn ($item) => [
+                'product_id' => $item->product_id, 'name' => $item->name,
+                'price' => (float) $item->price, 'quantity' => $item->quantity,
+                'extras' => $item->extras ?? [],
+                'subtotal' => (float) $item->subtotal,
+            ]),
+            'timeline' => $order->history->map(fn ($h) => [
+                'from' => $h->from_status, 'to' => $h->to_status,
+                'note' => $h->note, 'at' => $h->created_at?->toIso8601String(),
+            ]),
+        ]]);
+    }
+
+    /** Update my owner profile (name + email only). */
+    public function profileUpdate(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => ['sometimes', 'string', 'max:200'],
+            'email' => ['sometimes', 'nullable', 'email', 'max:255'],
+        ]);
+
+        $user = $request->user();
+        $user->fill($validated);
+        $user->save();
+
+        return response()->json(['data' => [
+            'id' => $user->id, 'name' => $user->name,
+            'phone' => $user->phone ?? null, 'email' => $user->email ?? null,
+        ]]);
+    }
+
     public function products(Request $request)
     {
         $storeIds = $this->storesOf($request);

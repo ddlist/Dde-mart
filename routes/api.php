@@ -158,10 +158,12 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
     // Vendor/owner surfaces (either ability suffices).
     Route::middleware(['auth:sanctum', 'ability:vendor,owner'])->prefix('vendor')->name('vendor.')->group(function () {
         Route::get('/me', [WorkAuthController::class, 'me'])->name('me');
+        Route::put('/profile', [VendorApiController::class, 'profileUpdate'])->name('profile.update');
         Route::post('/logout', [WorkAuthController::class, 'logout'])->name('logout');
         Route::get('/stores', [VendorApiController::class, 'stores'])->name('stores');
         Route::post('/stores/{store}/toggle', [VendorApiController::class, 'toggleStore'])->name('stores.toggle');
         Route::get('/orders', [VendorApiController::class, 'orders'])->name('orders');
+        Route::get('/orders/{order}', [VendorApiController::class, 'orderShow'])->name('orders.show');
         Route::post('/orders/{order}/transition', [VendorApiController::class, 'orderTransition'])->name('orders.transition');
         Route::get('/dinein', [VendorApiController::class, 'dinein'])->name('dinein');
         Route::post('/dinein/{booking}/transition', [VendorApiController::class, 'dineinTransition'])->name('dinein.transition');

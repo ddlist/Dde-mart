@@ -165,6 +165,7 @@ Base URL: `https://<host>/api/v1` · JSON only (`Accept: application/json`).
 | POST | `/api/v1/vendor/logout` | `auth:sanctum,ability:vendor,owner` | logout |
 | GET | `/api/v1/vendor/me` | `auth:sanctum,ability:vendor,owner` | me |
 | GET | `/api/v1/vendor/orders` | `auth:sanctum,ability:vendor,owner` | orders |
+| GET | `/api/v1/vendor/orders/{order}` | `auth:sanctum,ability:vendor,owner` | orderShow |
 | POST | `/api/v1/vendor/orders/{order}/transition` | `auth:sanctum,ability:vendor,owner` | orderTransition |
 | GET | `/api/v1/vendor/payouts` | `auth:sanctum,ability:vendor,owner` | payouts |
 | POST | `/api/v1/vendor/payouts` | `auth:sanctum,ability:vendor,owner` | payoutRequest |
@@ -172,6 +173,7 @@ Base URL: `https://<host>/api/v1` · JSON only (`Accept: application/json`).
 | POST | `/api/v1/vendor/products` | `auth:sanctum,ability:vendor,owner` | productStore |
 | PUT | `/api/v1/vendor/products/{product}` | `auth:sanctum,ability:vendor,owner` | productUpdate |
 | POST | `/api/v1/vendor/products/{product}/toggle` | `auth:sanctum,ability:vendor,owner` | toggleProduct |
+| PUT | `/api/v1/vendor/profile` | `auth:sanctum,ability:vendor,owner` | profileUpdate |
 | DELETE | `/api/v1/vendor/push-tokens` | `auth:sanctum,ability:vendor,owner` | unregisterToken |
 | POST | `/api/v1/vendor/push-tokens` | `auth:sanctum,ability:vendor,owner` | registerToken |
 | GET | `/api/v1/vendor/stores` | `auth:sanctum,ability:vendor,owner` | stores |
