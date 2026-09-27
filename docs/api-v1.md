@@ -76,6 +76,7 @@ Base URL: `https://<host>/api/v1` · JSON only (`Accept: application/json`).
 | POST | `/api/v1/favorites/toggle` | `auth:sanctum,abilities:customer` | favoriteToggle |
 | DELETE | `/api/v1/me` | `auth:sanctum,abilities:customer` | destroy |
 | GET | `/api/v1/me` | `auth:sanctum,abilities:customer` | me |
+| PUT | `/api/v1/me` | `auth:sanctum,abilities:customer` | update |
 | GET | `/api/v1/orders` | `auth:sanctum,abilities:customer` | orders |
 | GET | `/api/v1/orders/{order}` | `auth:sanctum,abilities:customer` | order |
 | POST | `/api/v1/orders/{order}/cancel` | `auth:sanctum,abilities:customer` | cancel |

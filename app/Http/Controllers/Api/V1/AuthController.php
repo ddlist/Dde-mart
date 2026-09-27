@@ -122,6 +122,32 @@ class AuthController extends Controller
         ]]);
     }
 
+    /** Update my profile (name + email only — phone is the identity). */
+    public function update(Request $request): JsonResponse
+    {
+        $customer = $request->user();
+
+        $validated = $request->validate([
+            'name' => ['sometimes', 'string', 'max:200'],
+            'email' => [
+                'sometimes', 'nullable', 'email', 'max:255',
+                \Illuminate\Validation\Rule::unique('customers', 'email')
+                    ->ignore($customer->id),
+            ],
+        ]);
+
+        $customer->fill($validated);
+        $customer->save();
+
+        return response()->json(['data' => [
+            'id' => $customer->id,
+            'name' => $customer->name,
+            'phone' => $customer->phone,
+            'email' => $customer->email,
+            'avatar' => \App\Support\Images::url($customer->avatar_path),
+        ]]);
+    }
+
     public function logout(Request $request): JsonResponse
     {
         $request->user()->currentAccessToken()->delete();

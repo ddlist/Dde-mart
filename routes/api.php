@@ -57,6 +57,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
     // Authenticated customer routes.
     Route::middleware(['auth:sanctum', 'abilities:customer'])->group(function () {
         Route::get('/me', [AuthController::class, 'me'])->name('me');
+        Route::put('/me', [AuthController::class, 'update'])->name('me.update');
         Route::delete('/me', [AuthController::class, 'destroy'])->name('me.destroy');
         Route::post('/auth/logout', [AuthController::class, 'logout'])->name('auth.logout');
 
