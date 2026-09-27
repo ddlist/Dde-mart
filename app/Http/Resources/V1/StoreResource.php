@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\V1;
 
+use App\Models\ItemReview;
 use App\Support\Images;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -29,6 +30,13 @@ class StoreResource extends JsonResource
             'is_open' => (bool) $this->is_open,
             'min_order' => (float) $this->min_order,
             'delivery_fee' => (float) $this->delivery_fee,
+            'self_delivery' => (bool) $this->self_delivery,
+            'rating_avg' => ($avg = ItemReview::where('store_id', $this->id)
+                ->where('status', 'approved')->avg('rating')) !== null
+                ? round((float) $avg, 1)
+                : null,
+            'rating_count' => ItemReview::where('store_id', $this->id)
+                ->where('status', 'approved')->count(),
         ];
     }
 }

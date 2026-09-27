@@ -67,6 +67,16 @@ class Product extends Model
         return $this->belongsToMany(AttributeValue::class, 'product_attribute_value');
     }
 
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(ItemReview::class);
+    }
+
+    public function approvedReviews(): HasMany
+    {
+        return $this->reviews()->where('status', 'approved');
+    }
+
     /** Effective selling price (discount wins when set and lower). */
     public function sellingPrice(): float
     {

@@ -24,6 +24,14 @@ class ProductResource extends JsonResource
             'selling_price' => $this->sellingPrice(),
             'quantity' => $this->quantity,
             'veg' => (bool) $this->veg,
+            'grams' => $this->grams,
+            'calories' => $this->calories,
+            'proteins' => $this->proteins,
+            'fats' => $this->fats,
+            'rating_avg' => ($avg = $this->approvedReviews()->avg('rating')) !== null
+                ? round((float) $avg, 1)
+                : null,
+            'rating_count' => $this->approvedReviews()->count(),
             'image' => Images::url($this->image_path),
             'section_id' => $this->section_id,
             'category_id' => $this->category_id,

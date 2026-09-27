@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Models\ItemReview;
 use App\Models\Order;
+use App\Models\Product;
+use App\Models\Store;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -52,6 +54,38 @@ class ReviewApiController extends Controller
         ]);
 
         return response()->json(['data' => ['id' => $review->id, 'status' => $review->status]], 201);
+    }
+
+    /** Public approved reviews for one product (newest first). */
+    public function forProduct(Request $request, Product $product)
+    {
+        return $this->approvedList($request, ItemReview::where('product_id', $product->id));
+    }
+
+    /** Public approved reviews for one store (newest first). */
+    public function forStore(Request $request, Store $store)
+    {
+        return $this->approvedList($request, ItemReview::where('store_id', $store->id));
+    }
+
+    protected function approvedList(Request $request, $query)
+    {
+        $reviews = (clone $query)->where('status', 'approved')
+            ->orderByDesc('id')
+            ->paginate(min(50, max(1, (int) $request->input('per_page', 15))));
+
+        return response()->json([
+            'data' => $reviews->map(fn ($r) => [
+                'id' => $r->id, 'product_id' => $r->product_id,
+                'author_name' => $r->author_name, 'rating' => $r->rating,
+                'comment' => $r->comment,
+            ]),
+            'meta' => [
+                'current_page' => $reviews->currentPage(),
+                'last_page' => $reviews->lastPage(),
+                'total' => $reviews->total(),
+            ],
+        ]);
     }
 
     public function mine(Request $request)

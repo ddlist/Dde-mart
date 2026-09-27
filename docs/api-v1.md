@@ -58,10 +58,12 @@ Base URL: `https://<host>/api/v1` · JSON only (`Accept: application/json`).
 | GET | `/api/v1/pages/{slug}` | public | page |
 | GET | `/api/v1/products` | public | products |
 | GET | `/api/v1/products/{product}` | public | product |
+| GET | `/api/v1/products/{product}/reviews` | public | forProduct |
 | GET | `/api/v1/sections` | public | sections |
 | GET | `/api/v1/settings` | public | settings |
 | GET | `/api/v1/stores` | public | stores |
 | GET | `/api/v1/stores/{store}` | public | store |
+| GET | `/api/v1/stores/{store}/reviews` | public | forStore |
 
 ## Customer account & commerce
 

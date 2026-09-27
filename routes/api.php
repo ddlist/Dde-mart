@@ -39,8 +39,10 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
     Route::get('/categories', [CatalogController::class, 'categories'])->name('categories');
     Route::get('/products', [CatalogController::class, 'products'])->name('products');
     Route::get('/products/{product}', [CatalogController::class, 'product'])->name('products.show');
+    Route::get('/products/{product}/reviews', [ReviewApiController::class, 'forProduct'])->name('products.reviews');
     Route::get('/stores', [CatalogController::class, 'stores'])->name('stores');
     Route::get('/stores/{store}', [CatalogController::class, 'store'])->name('stores.show');
+    Route::get('/stores/{store}/reviews', [ReviewApiController::class, 'forStore'])->name('stores.reviews');
 
     // Customer auth (throttled).
     Route::middleware('throttle:api-auth')->group(function () {
