@@ -77,10 +77,15 @@ class Product extends Model
         return $this->reviews()->where('status', 'approved');
     }
 
-    /** Effective selling price (discount wins when set and lower). */
+    /** Effective selling price (discount wins when positive and lower).
+     * Imported rows use discount_price = 0 for "no discount" — that must
+     * never zero out the price (it did: quote/checkout totals came out 0).
+     */
     public function sellingPrice(): float
     {
-        if ($this->discount_price !== null && $this->discount_price < $this->price) {
+        if ($this->discount_price !== null
+            && (float) $this->discount_price > 0
+            && $this->discount_price < $this->price) {
             return (float) $this->discount_price;
         }
 
