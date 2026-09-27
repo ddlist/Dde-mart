@@ -139,6 +139,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::put('/profile', [DriverApiController::class, 'profileUpdate'])->name('profile.update');
         Route::post('/availability', [DriverApiController::class, 'availability'])->name('availability');
         Route::get('/jobs', [DriverApiController::class, 'jobs'])->name('jobs');
+        Route::get('/jobs/{type}/{id}', [DriverApiController::class, 'jobShow'])->name('jobs.show');
         Route::get('/documents', [DriverApiController::class, 'documents'])->name('documents');
         Route::post('/documents', [DriverApiController::class, 'documentSubmit'])->name('documents.submit');
         Route::get('/payouts', [DriverApiController::class, 'payouts'])->name('payouts');

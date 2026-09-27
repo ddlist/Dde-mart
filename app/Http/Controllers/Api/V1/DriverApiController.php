@@ -99,6 +99,84 @@ class DriverApiController extends Controller
         return response()->json(['data' => ['mine' => $mine, 'pool' => $pool->values()]]);
     }
 
+    /** One job with customer/contact/bill detail. Visible when assigned to
+     * me or sitting unassigned in the pool; anything else is 404. */
+    public function jobShow(Request $request, string $type, int $id)
+    {
+        $driver = $request->user();
+
+        $order = match ($type) {
+            'food' => Order::with(['items', 'history'])->find($id),
+            'parcel' => ParcelOrder::with(['history'])->find($id),
+            'rental' => RentalOrder::find($id),
+            'ride' => Ride::find($id),
+            default => null,
+        };
+        abort_unless($order, 404);
+        abort_unless(
+            $order->driver_id === null || $order->driver_id === $driver->id,
+            404
+        );
+
+        $timeline = isset($order->history)
+            ? $order->history->map(fn ($h) => [
+                'to' => $h->to_status, 'at' => $h->created_at?->toIso8601String(),
+            ])->values()
+            : [];
+
+        $data = [
+            'type' => $type, 'id' => $order->id, 'number' => $order->number,
+            'status' => $order->status,
+            'payment_method' => $order->payment_method ?? null,
+            'notes' => $order->notes ?? null,
+            'subtotal' => (float) ($order->subtotal ?? 0),
+            'discount' => (float) ($order->discount ?? 0),
+            'total' => (float) $order->total,
+            'timeline' => $timeline,
+        ];
+
+        if ($type === 'food') {
+            $data += [
+                'customer_name' => $order->customer_name,
+                'customer_phone' => $order->customer_phone,
+                'address' => $order->address,
+                'delivery_charge' => (float) ($order->delivery_charge ?? 0),
+                'tax' => (float) ($order->tax ?? 0),
+                'items' => $order->items->map(fn ($item) => [
+                    'name' => $item->name, 'quantity' => $item->quantity,
+                    'extras' => $item->extras ?? [],
+                    'subtotal' => (float) $item->subtotal,
+                ]),
+            ];
+        }
+
+        if ($type === 'parcel') {
+            $data += [
+                'sender_name' => $order->sender_name,
+                'sender_phone' => $order->sender_phone,
+                'sender_address' => $order->sender_address,
+                'receiver_name' => $order->receiver_name,
+                'receiver_phone' => $order->receiver_phone,
+                'receiver_address' => $order->receiver_address,
+                'distance_km' => $order->distance_km !== null
+                    ? (float) $order->distance_km : null,
+            ];
+        }
+
+        if ($type === 'rental' || $type === 'ride') {
+            $data += [
+                'customer_name' => $order->customer_name,
+                'customer_phone' => $order->customer_phone,
+                'source' => $order->source,
+                'destination' => $order->destination,
+                'distance_km' => $order->distance_km !== null
+                    ? (float) $order->distance_km : null,
+            ];
+        }
+
+        return response()->json(['data' => $data]);
+    }
+
     public function documents(Request $request)
     {
         $driver = $request->user();
