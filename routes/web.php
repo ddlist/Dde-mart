@@ -226,6 +226,9 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
             ->middleware('admin.can:catalog,delete')->name("{$resource}.destroy");
     }
 
+    Route::get('/products/{product}', [ProductController::class, 'show'])
+        ->middleware('admin.can:catalog,view')->name('products.show');
+
     // Promotions (D8): coupons, ads, gift cards.
     foreach ([
         'coupons' => [CouponController::class, 'coupon'],

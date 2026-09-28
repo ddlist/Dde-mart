@@ -23,7 +23,7 @@ class Product extends Model
         'legacy_id', 'legacy_ref', 'section_id', 'category_id', 'brand_id', 'vendor_id',
         'name', 'slug', 'description', 'price', 'discount_price', 'quantity',
         'veg', 'is_takeaway', 'calories', 'proteins', 'fats', 'grams',
-        'image_path', 'sort_order', 'is_active',
+        'image_path', 'sort_order', 'is_active', 'specs',
     ];
 
     protected function casts(): array
@@ -34,6 +34,7 @@ class Product extends Model
             'veg' => 'boolean',
             'is_takeaway' => 'boolean',
             'is_active' => 'boolean',
+            'specs' => 'array',
         ];
     }
 
@@ -64,7 +65,8 @@ class Product extends Model
 
     public function attributeValues(): BelongsToMany
     {
-        return $this->belongsToMany(AttributeValue::class, 'product_attribute_value');
+        return $this->belongsToMany(AttributeValue::class, 'product_attribute_value')
+            ->withPivot(['price_delta', 'quantity']);
     }
 
     public function reviews(): HasMany

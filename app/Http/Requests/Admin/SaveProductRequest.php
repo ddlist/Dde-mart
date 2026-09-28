@@ -32,6 +32,12 @@ class SaveProductRequest extends CatalogRequest
             'is_active' => ['nullable', 'boolean'],
             'attributes' => ['nullable', 'array'],
             'attributes.*' => ['integer', 'exists:attribute_values,id'],
+            'variants' => ['nullable', 'array'],
+            'variants.*.price' => ['nullable', 'numeric', 'min:0'],
+            'variants.*.quantity' => ['nullable', 'integer', 'min:0'],
+            'specs' => ['nullable', 'array', 'max:20'],
+            'specs.*.label' => ['nullable', 'string', 'max:100', 'required_with:specs.*.value'],
+            'specs.*.value' => ['nullable', 'string', 'max:500'],
             'addons' => ['nullable', 'array', 'max:30'],
             // Blank rows are ignored by the controller; a priced row needs a name.
             'addons.*.name' => ['nullable', 'string', 'max:100', 'required_with:addons.*.price'],

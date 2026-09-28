@@ -43,8 +43,13 @@ class ProductResource extends JsonResource
                 ->map(fn ($values, $attributeId) => [
                     'attribute_id' => $attributeId,
                     'name' => $values->first()->attribute?->name,
-                    'values' => $values->map(fn ($v) => ['id' => $v->id, 'value' => $v->value])->values(),
+                    'values' => $values->map(fn ($v) => [
+                        'id' => $v->id, 'value' => $v->value,
+                        'price_delta' => $v->pivot->price_delta !== null ? (float) $v->pivot->price_delta : null,
+                        'quantity' => $v->pivot->quantity !== null ? (int) $v->pivot->quantity : null,
+                    ])->values(),
                 ])->values()),
+            'specs' => $this->specs ?? [],
         ];
     }
 }

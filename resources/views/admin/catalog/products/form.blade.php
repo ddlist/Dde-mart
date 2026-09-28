@@ -78,18 +78,40 @@
             </div>
         </x-card>
 
-        <x-card title="Attributes" sub="Manage axes under Catalog → Attributes.">
+        <x-card title="Attributes & variants" sub="Manage axes under Catalog → Attributes. Optional per-value price delta and stock.">
             <div class="grid gap-4 md:grid-cols-2">
                 @foreach ($attributes as $attribute)
                     <fieldset class="rounded-xl border border-slate-200 p-3">
                         <legend class="px-1 text-xs font-bold uppercase tracking-wider text-slate-500">{{ $attribute->name }}</legend>
-                        <div class="flex flex-wrap gap-3">
+                        <div class="space-y-2">
                             @foreach ($attribute->values as $value)
-                                <x-check name="attributes[]" :value="$value->id" :label="$value->value"
-                                    :checked="in_array($value->id, old('attributes', $product->attributeValues->pluck('id')->all() ?? []))" />
+                                @php($pivot = $product->attributeValues->firstWhere('id', $value->id)?->pivot)
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <x-check name="attributes[]" :value="$value->id" :label="$value->value"
+                                        :checked="in_array($value->id, old('attributes', $product->attributeValues->pluck('id')->all() ?? []))" />
+                                    <x-input name="variants[{{ $value->id }}][price]" type="number" step="0.01" min="0"
+                                        value="{{ old('variants.'.$value->id.'.price', $pivot?->price_delta) }}" placeholder="+ price" class="w-24" />
+                                    <x-input name="variants[{{ $value->id }}][quantity]" type="number" step="1" min="0"
+                                        value="{{ old('variants.'.$value->id.'.quantity', $pivot?->quantity) }}" placeholder="qty" class="w-20" />
+                                </div>
                             @endforeach
                         </div>
                     </fieldset>
+                @endforeach
+            </div>
+        </x-card>
+
+        <x-card title="Specifications">
+            <x-slot:action>
+                <x-btn variant="row" type="button" id="add-spec">+ Add row</x-btn>
+            </x-slot:action>
+            <div id="specs" class="space-y-2">
+                @foreach (old('specs', $product->specs ?? []) as $i => $spec)
+                    <div class="flex gap-2">
+                        <x-input name="specs[{{ $i }}][label]" value="{{ $spec['label'] ?? '' }}" placeholder="Label" class="flex-1" />
+                        <x-input name="specs[{{ $i }}][value]" value="{{ $spec['value'] ?? '' }}" placeholder="Value" class="flex-1" />
+                        <x-btn variant="row-danger" type="button" onclick="this.parentElement.remove()">✕</x-btn>
+                    </div>
                 @endforeach
             </div>
         </x-card>
@@ -123,6 +145,17 @@
             row.className = 'flex gap-2';
             row.innerHTML = `<input name="addons[${i}][name]" type="text" placeholder="e.g. Extra cheese" class="input flex-1">
                 <input name="addons[${i}][price]" type="number" step="0.01" min="0" placeholder="0.00" class="input w-28">
+                <button type="button" class="btn-danger-outline">✕</button>`;
+            row.querySelector('button').addEventListener('click', () => row.remove());
+            list.appendChild(row);
+        });
+        document.getElementById('add-spec').addEventListener('click', () => {
+            const list = document.getElementById('specs');
+            const i = list.children.length + Date.now();
+            const row = document.createElement('div');
+            row.className = 'flex gap-2';
+            row.innerHTML = `<input name="specs[${i}][label]" type="text" placeholder="Label" class="input flex-1">
+                <input name="specs[${i}][value]" type="text" placeholder="Value" class="input flex-1">
                 <button type="button" class="btn-danger-outline">✕</button>`;
             row.querySelector('button').addEventListener('click', () => row.remove());
             list.appendChild(row);

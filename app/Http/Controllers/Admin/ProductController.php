@@ -54,6 +54,13 @@ class ProductController extends Controller
         return redirect()->route('admin.products.index')->with('success', "Product '{$product->name}' created.");
     }
 
+    public function show(Product $product): View
+    {
+        $product->load(['section', 'category', 'brand', 'addons', 'attributeValues.attribute']);
+
+        return view('admin.catalog.products.show', ['product' => $product]);
+    }
+
     public function edit(Product $product): View
     {
         $product->load(['addons', 'attributeValues']);
@@ -95,7 +102,7 @@ class ProductController extends Controller
 
     protected function payload(SaveProductRequest $request, ?Product $product = null): array
     {
-        $data = $request->safe()->except(['image', 'remove_image', 'attributes', 'addons']);
+        $data = $request->safe()->except(['image', 'remove_image', 'attributes', 'variants', 'addons']);
         $data['veg'] = $request->boolean('veg');
         $data['is_takeaway'] = $request->boolean('is_takeaway');
         $data['is_active'] = $request->boolean('is_active');
@@ -114,7 +121,29 @@ class ProductController extends Controller
 
     protected function syncRelations(Product $product, SaveProductRequest $request): void
     {
-        $product->attributeValues()->sync($request->input('attributes', []));
+        $ids = collect($request->input('attributes', []))
+            ->merge(array_keys($request->input('variants', [])))
+            ->map(fn ($id) => (int) $id)
+            ->unique()
+            ->filter(fn ($id) => \App\Models\AttributeValue::whereKey($id)->exists())
+            ->values();
+
+        $pivot = [];
+        foreach ($ids as $id) {
+            $row = $request->input("variants.{$id}", []);
+            $pivot[$id] = [
+                'price_delta' => $row['price'] ?? null,
+                'quantity' => $row['quantity'] ?? null,
+            ];
+        }
+        $product->attributeValues()->sync($pivot);
+
+        $specs = collect($request->input('specs', []))
+            ->map(fn ($row) => ['label' => trim((string) ($row['label'] ?? '')), 'value' => trim((string) ($row['value'] ?? ''))])
+            ->filter(fn ($row) => $row['label'] !== '' && $row['value'] !== '')
+            ->values()
+            ->all();
+        $product->update(['specs' => $specs === [] ? null : $specs]);
 
         $product->addons()->delete();
 

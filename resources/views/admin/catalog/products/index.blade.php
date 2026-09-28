@@ -64,6 +64,7 @@
                         <td class="td"><x-status-pill :active="$product->is_active" /></td>
                         <td class="td">
                             <div class="flex justify-end gap-2">
+                                <x-btn variant="row" href="{{ route('admin.products.show', $product) }}">View</x-btn>
                                 @if (auth()->user()->canAccess('catalog', 'edit'))
                                     <x-btn variant="row" href="{{ route('admin.products.edit', $product) }}">Edit</x-btn>
                                 @endif
