@@ -30,8 +30,9 @@ class Driver extends Authenticatable
 
     protected $fillable = [
         'legacy_id', 'kind', 'name', 'phone', 'email', 'photo_path', 'vehicle_info',
-        'zone_id', 'store_id', 'latitude', 'longitude', 'location_updated_at',
+        'zone_id', 'store_id', 'owner_id', 'latitude', 'longitude', 'location_updated_at',
         'status', 'is_online',
+        'bank_name', 'bank_branch', 'bank_holder', 'bank_account', 'bank_other',
     ];
 
     protected function casts(): array
@@ -55,6 +56,11 @@ class Driver extends Authenticatable
     public function store(): BelongsTo
     {
         return $this->belongsTo(Store::class);
+    }
+
+    public function owner(): BelongsTo
+    {
+        return $this->belongsTo(Owner::class);
     }
 
     public function verifications(): MorphMany

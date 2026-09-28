@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\SaveDriverRequest;
 use App\Models\Driver;
+use App\Models\Owner;
 use App\Models\Store;
 use App\Models\Zone;
 use App\Support\ImageUploads;
@@ -20,12 +21,14 @@ class DriverController extends Controller
 {
     public function index(Request $request): View
     {
-        $drivers = Driver::with(['zone', 'store'])->withCount('verifications')
+        $drivers = Driver::with(['zone', 'store', 'owner'])->withCount('verifications')
             ->when($request->filled('search'), fn ($q) => $q
                 ->where('name', 'like', '%'.$request->input('search').'%')
                 ->orWhere('phone', 'like', '%'.$request->input('search').'%'))
             ->when($request->filled('kind'), fn ($q) => $q->where('kind', $request->input('kind')))
             ->when($request->filled('status'), fn ($q) => $q->where('status', $request->input('status')))
+            ->when($request->input('scope') === 'fleet', fn ($q) => $q->whereNotNull('owner_id'))
+            ->when($request->input('scope') === 'store', fn ($q) => $q->whereNotNull('store_id'))
             ->orderBy('name')
             ->paginate(15)->withQueryString();
 
@@ -46,7 +49,7 @@ class DriverController extends Controller
 
     public function show(Driver $driver): View
     {
-        $driver->load(['zone', 'store', 'verifications.type', 'verifications.reviewer']);
+        $driver->load(['zone', 'store', 'owner', 'verifications.type', 'verifications.reviewer']);
 
         return view('admin.drivers.show', ['driver' => $driver]);
     }
@@ -91,6 +94,7 @@ class DriverController extends Controller
             'driver' => $driver,
             'zones' => Zone::orderBy('name')->get(),
             'stores' => Store::orderBy('name')->get(),
+            'owners' => Owner::orderBy('name')->get(),
             'method' => $driver->exists ? 'PUT' : 'POST',
             'action' => $driver->exists
                 ? route('admin.drivers.update', $driver)

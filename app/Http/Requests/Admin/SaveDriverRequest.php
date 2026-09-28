@@ -22,6 +22,12 @@ class SaveDriverRequest extends CatalogRequest
             'vehicle_info' => ['nullable', 'string', 'max:255'],
             'zone_id' => ['nullable', 'integer', Rule::exists('zones', 'id')],
             'store_id' => ['nullable', 'integer', Rule::exists('stores', 'id')],
+            'owner_id' => ['nullable', 'integer', Rule::exists('owners', 'id')],
+            'bank_name' => ['nullable', 'string', 'max:150'],
+            'bank_branch' => ['nullable', 'string', 'max:150'],
+            'bank_holder' => ['nullable', 'string', 'max:150'],
+            'bank_account' => ['nullable', 'string', 'max:100'],
+            'bank_other' => ['nullable', 'string', 'max:255'],
         ];
     }
 }

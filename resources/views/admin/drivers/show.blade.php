@@ -22,6 +22,8 @@
                         <div><dt class="text-xs text-slate-400">Email</dt><dd class="font-semibold">{{ $driver->email ?? '—' }}</dd></div>
                         <div><dt class="text-xs text-slate-400">Vehicle</dt><dd>{{ $driver->vehicle_info ?? '—' }}</dd></div>
                         <div><dt class="text-xs text-slate-400">Zone / Store</dt><dd>{{ $driver->zone?->name ?? '—' }} / {{ $driver->store?->name ?? '—' }}</dd></div>
+                        <div><dt class="text-xs text-slate-400">Fleet owner</dt><dd>{{ $driver->owner?->name ?? '—' }}</dd></div>
+                        <div><dt class="text-xs text-slate-400">Bank</dt><dd>{{ $driver->bank_name ?? '—' }}{{ $driver->bank_account ? ' · '.$driver->bank_account : '' }}</dd></div>
                     </dl>
                 </div>
                 @if (auth()->user()->canAccess('drivers', 'edit'))

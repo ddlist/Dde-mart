@@ -44,6 +44,14 @@
                         </x-select>
                     </x-field>
                 </div>
+                <x-field label="Fleet owner (optional)" for="owner_id">
+                    <x-select id="owner_id" name="owner_id">
+                        <option value="">—</option>
+                        @foreach ($owners as $owner)
+                            <option value="{{ $owner->id }}" @selected((string) old('owner_id', $driver->owner_id) === (string) $owner->id)>{{ $owner->name }}</option>
+                        @endforeach
+                    </x-select>
+                </x-field>
                 <div>
                     <span class="label">Photo</span>
                     @if ($driver->photo_path)
@@ -53,6 +61,26 @@
                     <input name="photo" type="file" accept="image/*" class="file">
                     @error('photo')<p class="field-error">{{ $message }}</p>@enderror
                 </div>
+            </div>
+        </x-card>
+
+        <x-card title="Bank details">
+            <div class="space-y-4">
+                <x-field label="Bank name" for="bank_name">
+                    <x-input id="bank_name" name="bank_name" value="{{ old('bank_name', $driver->bank_name) }}" />
+                </x-field>
+                <x-field label="Branch" for="bank_branch">
+                    <x-input id="bank_branch" name="bank_branch" value="{{ old('bank_branch', $driver->bank_branch) }}" />
+                </x-field>
+                <x-field label="Account holder" for="bank_holder">
+                    <x-input id="bank_holder" name="bank_holder" value="{{ old('bank_holder', $driver->bank_holder) }}" />
+                </x-field>
+                <x-field label="Account number" for="bank_account">
+                    <x-input id="bank_account" name="bank_account" value="{{ old('bank_account', $driver->bank_account) }}" />
+                </x-field>
+                <x-field label="Other info" for="bank_other">
+                    <x-input id="bank_other" name="bank_other" value="{{ old('bank_other', $driver->bank_other) }}" />
+                </x-field>
             </div>
         </x-card>
 

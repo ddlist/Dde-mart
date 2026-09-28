@@ -23,6 +23,11 @@
                     <option value="{{ $status }}" @selected(request('status') === $status)>{{ ucfirst($status) }}</option>
                 @endforeach
             </x-select>
+            <x-select name="scope" onchange="this.form.submit()">
+                <option value="">All drivers</option>
+                <option value="fleet" @selected(request('scope') === 'fleet')>Fleet only</option>
+                <option value="store" @selected(request('scope') === 'store')>Store riders only</option>
+            </x-select>
             <x-btn variant="dark">Filter</x-btn>
         </form>
     </x-card>
@@ -43,7 +48,9 @@
                                     <span class="grid h-10 w-10 place-items-center rounded-full bg-slate-200 font-black text-slate-500">{{ strtoupper(substr($driver->name, 0, 1)) }}</span>
                                 @endif
                                 <div>
-                                    <p class="font-semibold">{{ $driver->name }}</p>
+                                    <p class="font-semibold">
+                                        <span class="mr-1 inline-block h-2 w-2 rounded-full {{ $driver->is_online ? 'bg-green-500' : 'bg-slate-300' }}" title="{{ $driver->is_online ? 'Online' : 'Offline' }}"></span>{{ $driver->name }}
+                                    </p>
                                     <p class="text-xs text-slate-400">{{ $driver->phone }}</p>
                                 </div>
                             </div>
