@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\ParcelCategory;
 use App\Models\ParcelOrder;
 use App\Models\ParcelWeight;
-use App\Models\Setting;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -35,10 +34,9 @@ class ParcelController extends Controller
         ]);
 
         $weight = ParcelWeight::findOrFail($validated['weight_id']);
-        $perKm = (float) Setting::get('parcel_per_km', 2);
 
         return response()->json(['data' => [
-            'charge' => round($weight->delivery_charge + $validated['distance_km'] * $perKm, 2),
+            'charge' => \App\Support\ParcelPricing::quote($weight, (float) $validated['distance_km']),
         ]]);
     }
 
@@ -58,8 +56,7 @@ class ParcelController extends Controller
         ]);
 
         $weight = ParcelWeight::findOrFail($validated['weight_id']);
-        $perKm = (float) Setting::get('parcel_per_km', 2);
-        $total = round($weight->delivery_charge + $validated['distance_km'] * $perKm, 2);
+        $total = \App\Support\ParcelPricing::quote($weight, (float) $validated['distance_km']);
 
         $customer = Auth::guard('customer')->user();
 

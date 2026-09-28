@@ -40,7 +40,7 @@ class TransportApiController extends Controller
         ]);
 
         $weight = ParcelWeight::findOrFail($validated['weight_id']);
-        $charge = round($weight->delivery_charge + $validated['distance_km'] * (float) Setting::get('parcel_per_km', 2), 2);
+        $charge = \App\Support\ParcelPricing::quote($weight, (float) $validated['distance_km']);
 
         return response()->json(['data' => ['charge' => $charge]]);
     }
@@ -61,7 +61,7 @@ class TransportApiController extends Controller
 
         $customer = $request->user();
         $weight = ParcelWeight::findOrFail($validated['weight_id']);
-        $total = round($weight->delivery_charge + $validated['distance_km'] * (float) Setting::get('parcel_per_km', 2), 2);
+        $total = \App\Support\ParcelPricing::quote($weight, (float) $validated['distance_km']);
 
         $order = ParcelOrder::create([
             'sender_name' => $validated['sender_name'],

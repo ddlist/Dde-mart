@@ -37,6 +37,21 @@ class ShopVerticalsTest extends TestCase
         return $customer;
     }
 
+    public function test_parcel_quote_applies_delivery_minimum(): void
+    {
+        \App\Models\Setting::set('delivery_min', '500');
+        $weight = ParcelWeight::create(['title' => 'Doc', 'delivery_charge' => 50]);
+
+        $token = $this->postJson('/api/v1/auth/register', [
+            'name' => 'Sara', 'phone' => '03001234567',
+        ])->json('data.token');
+
+        $this->postJson('/api/v1/parcel/quote', [
+            'weight_id' => $weight->id, 'distance_km' => 1,
+        ], ['Authorization' => 'Bearer '.$token])
+            ->assertOk()->assertJsonPath('data.charge', 500);
+    }
+
     public function test_parcel_book_and_track(): void
     {
         $this->loginCustomer();

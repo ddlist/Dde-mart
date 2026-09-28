@@ -41,6 +41,8 @@ return [
         'min_withdrawal' => '100',
         'min_deposit' => '10',
         'min_deposit_owner' => '10',
+        // Delivery (floor applied to parcel quotes)
+        'delivery_min' => '0',
         // Geo
         'distance_unit' => 'km',
         'default_radius_km' => '5',
@@ -91,6 +93,7 @@ return [
         'orders' => ['label' => 'Orders', 'keys' => ['order_auto_cancel_minutes', 'driver_accept_seconds', 'default_prep_minutes']],
         'dispatch' => ['label' => 'Auto-dispatch', 'keys' => ['dispatch_auto', 'dispatch_radius_km', 'dispatch_location_stale_minutes']],
         'payouts' => ['label' => 'Payouts', 'keys' => ['min_withdrawal', 'min_deposit', 'min_deposit_owner']],
+        'delivery' => ['label' => 'Delivery', 'keys' => ['delivery_min']],
         'features' => ['label' => 'Feature flags', 'keys' => ['story_enable', 'story_duration', 'auto_approve_vendor', 'auto_approve_provider', 'ads_enable', 'self_delivery_enable']],
         'ringtone' => ['label' => 'Ringtone', 'keys' => ['ringtone']],
         'email' => ['label' => 'Email', 'keys' => ['mail_from_name']],
@@ -133,6 +136,7 @@ return [
         'min_withdrawal' => ['type' => 'number', 'help' => 'Enforced on every payout request.'],
         'min_deposit' => ['type' => 'number', 'help' => 'Minimum wallet top-up.'],
         'min_deposit_owner' => ['type' => 'number', 'help' => 'Minimum owner wallet top-up.'],
+        'delivery_min' => ['type' => 'number', 'help' => 'Floor for parcel delivery quotes.'],
         'distance_unit' => ['type' => 'select', 'options' => ['km' => 'Kilometers', 'miles' => 'Miles']],
         'default_radius_km' => ['type' => 'number'],
         'parcel_per_km' => ['type' => 'number'],
