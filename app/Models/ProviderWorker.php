@@ -15,7 +15,8 @@ class ProviderWorker extends Authenticatable
 {
     use HasFactory, HasApiTokens;
 
-    protected $fillable = ['legacy_id', 'provider_id', 'name', 'phone', 'email', 'is_active'];
+    protected $fillable = ['legacy_id', 'provider_id', 'name', 'phone', 'email', 'is_active',
+        'salary', 'address'];
 
     protected function casts(): array
     {

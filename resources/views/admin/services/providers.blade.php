@@ -1,6 +1,12 @@
 {{-- DDE-Mart Admin — providers directory (original view, UI kit) --}}
 <x-admin-layout title="Providers">
-    <x-page-head title="Providers" sub="On-demand service businesses." />
+    <x-page-head title="Providers" sub="On-demand service businesses.">
+        <x-slot:action>
+            @if (auth()->user()->canAccess('transport', 'create'))
+                <x-btn href="{{ route('admin.providers.create') }}"><x-icon name="plus" class="h-4 w-4" /> New provider</x-btn>
+            @endif
+        </x-slot:action>
+    </x-page-head>
 
     <x-card class="mb-4">
         <form method="GET" action="{{ route('admin.providers.index') }}" class="flex flex-wrap gap-2">

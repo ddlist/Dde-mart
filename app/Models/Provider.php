@@ -24,7 +24,9 @@ class Provider extends Authenticatable
         'rejected' => ['active'],
     ];
 
-    protected $fillable = ['legacy_id', 'name', 'phone', 'email', 'address', 'status'];
+    protected $fillable = ['legacy_id', 'name', 'phone', 'email', 'address', 'status',
+        'bank_name', 'bank_branch', 'bank_holder', 'bank_account', 'bank_other',
+        'commission_type', 'commission_value'];
 
     /** Application-level defaults (DB defaults alone don't hydrate the model). */
     protected $attributes = ['status' => 'pending'];

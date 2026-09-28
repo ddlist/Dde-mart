@@ -1,6 +1,12 @@
 {{-- DDE-Mart Admin — provider workers (original view, UI kit) --}}
 <x-admin-layout title="Workers">
-    <x-page-head title="Workers" sub="Provider staff." />
+    <x-page-head title="Workers" sub="Provider staff.">
+        <x-slot:action>
+            @if (auth()->user()->canAccess('transport', 'create'))
+                <x-btn href="{{ route('admin.provider-workers.create') }}"><x-icon name="plus" class="h-4 w-4" /> New worker</x-btn>
+            @endif
+        </x-slot:action>
+    </x-page-head>
 
     <x-card class="mb-4">
         <form method="GET" action="{{ route('admin.provider-workers.index') }}" class="flex gap-2">
@@ -24,12 +30,15 @@
                         <td class="td text-xs text-slate-500">{{ $worker->provider?->name ?? '—' }}</td>
                         <td class="td"><x-status-pill :active="$worker->is_active" /></td>
                         <td class="td text-right">
-                            @if (auth()->user()->canAccess('transport', 'edit'))
-                                <form method="POST" action="{{ route('admin.provider-workers.toggle', $worker) }}" class="inline">
-                                    @csrf
-                                    <x-btn variant="row">{{ $worker->is_active ? 'Deactivate' : 'Activate' }}</x-btn>
-                                </form>
-                            @endif
+                            <div class="flex justify-end gap-2">
+                                @if (auth()->user()->canAccess('transport', 'edit'))
+                                    <x-btn variant="row" href="{{ route('admin.provider-workers.edit', $worker) }}">Edit</x-btn>
+                                    <form method="POST" action="{{ route('admin.provider-workers.toggle', $worker) }}" class="inline">
+                                        @csrf
+                                        <x-btn variant="row">{{ $worker->is_active ? 'Deactivate' : 'Activate' }}</x-btn>
+                                    </form>
+                                @endif
+                            </div>
                         </td>
                     </tr>
                 @empty

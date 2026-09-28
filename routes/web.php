@@ -421,10 +421,26 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
     // On-demand services: providers, nested categories, services, workers, bookings.
     Route::get('/providers', [ServiceController::class, 'providers'])
         ->middleware('admin.can:transport,view')->name('providers.index');
+    Route::get('/providers/create', [ServiceController::class, 'providerCreate'])
+        ->middleware('admin.can:transport,create')->name('providers.create');
+    Route::post('/providers', [ServiceController::class, 'providerStore'])
+        ->middleware('admin.can:transport,create')->name('providers.store');
     Route::get('/providers/{provider}', [ServiceController::class, 'providerShow'])
         ->middleware('admin.can:transport,view')->name('providers.show');
     Route::post('/providers/{provider}/transition', [ServiceController::class, 'providerTransition'])
         ->middleware('admin.can:transport,edit')->name('providers.transition');
+    Route::get('/providers/{provider}/edit', [ServiceController::class, 'providerEdit'])
+        ->middleware('admin.can:transport,edit')->name('providers.edit');
+    Route::put('/providers/{provider}', [ServiceController::class, 'providerUpdate'])
+        ->middleware('admin.can:transport,edit')->name('providers.update');
+    Route::get('/provider-workers/create', [ServiceController::class, 'workerCreate'])
+        ->middleware('admin.can:transport,create')->name('provider-workers.create');
+    Route::post('/provider-workers', [ServiceController::class, 'workerStore'])
+        ->middleware('admin.can:transport,create')->name('provider-workers.store');
+    Route::get('/provider-workers/{worker}/edit', [ServiceController::class, 'workerEdit'])
+        ->middleware('admin.can:transport,edit')->name('provider-workers.edit');
+    Route::put('/provider-workers/{worker}', [ServiceController::class, 'workerUpdate'])
+        ->middleware('admin.can:transport,edit')->name('provider-workers.update');
     Route::get('/provider-categories', [ServiceController::class, 'categories'])
         ->middleware('admin.can:transport,view')->name('provider-categories.index');
     Route::post('/provider-categories', [ServiceController::class, 'categoryStore'])

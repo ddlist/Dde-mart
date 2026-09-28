@@ -23,6 +23,103 @@ class ServiceController extends Controller
 {
     // -- Providers -------------------------------------------------------
 
+    public function providerCreate(): View
+    {
+        return view('admin.services.provider-form', ['provider' => new Provider()]);
+    }
+
+    public function providerStore(Request $request): RedirectResponse
+    {
+        $provider = Provider::create($request->validate([
+            'name' => ['required', 'string', 'max:200'],
+            'phone' => ['required', 'string', 'max:50', 'unique:providers,phone'],
+            'email' => ['nullable', 'email', 'max:255'],
+            'address' => ['nullable', 'string', 'max:500'],
+            'bank_name' => ['nullable', 'string', 'max:150'],
+            'bank_branch' => ['nullable', 'string', 'max:150'],
+            'bank_holder' => ['nullable', 'string', 'max:150'],
+            'bank_account' => ['nullable', 'string', 'max:100'],
+            'bank_other' => ['nullable', 'string', 'max:255'],
+            'commission_type' => ['nullable', 'in:percentage,fixed'],
+            'commission_value' => ['nullable', 'numeric', 'min:0'],
+        ]));
+
+        return redirect()->route('admin.providers.show', $provider)
+            ->with('success', "Provider '{$provider->name}' created.");
+    }
+
+    public function providerEdit(Provider $provider): View
+    {
+        return view('admin.services.provider-form', ['provider' => $provider]);
+    }
+
+    public function providerUpdate(Request $request, Provider $provider): RedirectResponse
+    {
+        $provider->update($request->validate([
+            'name' => ['required', 'string', 'max:200'],
+            'phone' => ['required', 'string', 'max:50', 'unique:providers,phone,'.$provider->id],
+            'email' => ['nullable', 'email', 'max:255'],
+            'address' => ['nullable', 'string', 'max:500'],
+            'bank_name' => ['nullable', 'string', 'max:150'],
+            'bank_branch' => ['nullable', 'string', 'max:150'],
+            'bank_holder' => ['nullable', 'string', 'max:150'],
+            'bank_account' => ['nullable', 'string', 'max:100'],
+            'bank_other' => ['nullable', 'string', 'max:255'],
+            'commission_type' => ['nullable', 'in:percentage,fixed'],
+            'commission_value' => ['nullable', 'numeric', 'min:0'],
+        ]));
+
+        return redirect()->route('admin.providers.show', $provider)
+            ->with('success', "Provider '{$provider->name}' updated.");
+    }
+
+    public function workerCreate(Request $request): View
+    {
+        return view('admin.services.worker-form', [
+            'worker' => new ProviderWorker(),
+            'providers' => Provider::orderBy('name')->get(),
+            'fixedProvider' => $request->integer('provider_id') ?: null,
+        ]);
+    }
+
+    public function workerStore(Request $request): RedirectResponse
+    {
+        $worker = ProviderWorker::create($request->validate([
+            'provider_id' => ['required', 'integer', 'exists:providers,id'],
+            'name' => ['required', 'string', 'max:200'],
+            'phone' => ['required', 'string', 'max:50'],
+            'email' => ['nullable', 'email', 'max:255'],
+            'salary' => ['nullable', 'numeric', 'min:0'],
+            'address' => ['nullable', 'string', 'max:500'],
+        ]));
+
+        return redirect()->route('admin.provider-workers.index')
+            ->with('success', "Worker '{$worker->name}' created.");
+    }
+
+    public function workerEdit(ProviderWorker $worker): View
+    {
+        return view('admin.services.worker-form', [
+            'worker' => $worker,
+            'providers' => Provider::orderBy('name')->get(),
+            'fixedProvider' => null,
+        ]);
+    }
+
+    public function workerUpdate(Request $request, ProviderWorker $worker): RedirectResponse
+    {
+        $worker->update($request->validate([
+            'name' => ['required', 'string', 'max:200'],
+            'phone' => ['required', 'string', 'max:50'],
+            'email' => ['nullable', 'email', 'max:255'],
+            'salary' => ['nullable', 'numeric', 'min:0'],
+            'address' => ['nullable', 'string', 'max:500'],
+        ]));
+
+        return redirect()->route('admin.provider-workers.index')
+            ->with('success', "Worker '{$worker->name}' updated.");
+    }
+
     public function providers(Request $request): View
     {
         $providers = Provider::withCount(['services', 'workers'])
