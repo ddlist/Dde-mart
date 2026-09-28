@@ -209,7 +209,7 @@ class ProviderApiController extends Controller
     public function payoutRequest(Request $request)
     {
         $validated = $request->validate([
-            'amount' => ['required', 'numeric', 'min:1'],
+            'amount' => ['required', 'numeric', 'min:' . max(1, (int) \App\Models\Setting::get('min_withdrawal', 1))],
             'method' => ['required', 'string', 'in:'.implode(',', PayoutRequest::METHODS)],
             'method_details' => ['nullable', 'array'],
         ]);

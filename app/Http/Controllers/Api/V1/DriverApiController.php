@@ -211,14 +211,16 @@ class DriverApiController extends Controller
             return response()->json(['message' => 'Back image required.'], 422);
         }
 
+        $auto = \App\Models\Setting::bool('verify_driver', true) ? 'pending' : 'approved';
+
         $verification = $request->user()->verifications()->create([
             'document_type_id' => $type->id,
             'front_path' => $request->file('front')?->store('verifications', 'public'),
             'back_path' => $request->file('back')?->store('verifications', 'public'),
-            'status' => 'pending',
+            'status' => $auto,
         ]);
 
-        return response()->json(['data' => ['id' => $verification->id, 'status' => 'pending']], 201);
+        return response()->json(['data' => ['id' => $verification->id, 'status' => $auto]], 201);
     }
 
     public function payouts(Request $request)
@@ -240,7 +242,7 @@ class DriverApiController extends Controller
     public function payoutRequest(Request $request)
     {
         $validated = $request->validate([
-            'amount' => ['required', 'numeric', 'min:1'],
+            'amount' => ['required', 'numeric', 'min:' . max(1, (int) \App\Models\Setting::get('min_withdrawal', 1))],
             'method' => ['required', 'string', 'in:bank,paypal,stripe,razorpay,flutterwave,cash'],
             'method_details' => ['nullable', 'array'],
         ]);

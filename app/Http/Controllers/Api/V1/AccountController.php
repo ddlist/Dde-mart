@@ -99,7 +99,7 @@ class AccountController extends Controller
     public function topupStart(Request $request, ShopPayments $payments)
     {
         $validated = $request->validate([
-            'amount' => ['required', 'numeric', 'min:1', 'max:100000'],
+            'amount' => ['required', 'numeric', 'min:'.max(1, (int) \App\Models\Setting::get('min_deposit', 1)), 'max:100000'],
             'method' => ['required', 'string', 'in:stripe,razorpay,paypal'],
         ]);
 

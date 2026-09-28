@@ -234,7 +234,7 @@ class VendorApiController extends Controller
     {
         $validated = $request->validate([
             'store_id' => ['required', 'integer'],
-            'amount' => ['required', 'numeric', 'min:1'],
+            'amount' => ['required', 'numeric', 'min:' . max(1, (int) \App\Models\Setting::get('min_withdrawal', 1))],
             'method' => ['required', 'string', 'in:bank,paypal,stripe,razorpay,flutterwave,cash'],
             'method_details' => ['nullable', 'array'],
         ]);

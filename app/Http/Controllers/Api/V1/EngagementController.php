@@ -107,10 +107,18 @@ class EngagementController extends Controller
      * the maintenance flag and support contacts. Apps must hard-block below
      * their minimum and show maintenance UI when the flag is set.
      */
-    public function appConfig()
+    public function appConfig(Request $request)
     {
+        // Optional ?audience= merges the per-audience flag into the legacy
+        // boolean, so old apps keep working unchanged.
+        $audience = strtolower((string) $request->input('audience', ''));
+        $down = Setting::get('apps_maintenance', '0') === '1';
+        if (in_array($audience, ['customer', 'driver', 'vendor', 'provider', 'worker'], true)) {
+            $down = $down || Setting::get("maint_{$audience}", '0') === '1';
+        }
+
         return response()->json(['data' => [
-            'maintenance' => Setting::get('apps_maintenance', '0') === '1',
+            'maintenance' => $down,
             'min_versions' => [
                 'customer' => (string) Setting::get('min_app_customer', '1.0.0'),
                 'driver' => (string) Setting::get('min_app_driver', '1.0.0'),

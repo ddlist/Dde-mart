@@ -29,6 +29,18 @@ class Setting extends Model
         static::updateOrCreate(['key' => $key], ['value' => $value === null ? null : (string) $value]);
     }
 
+    /** Boolean read for toggle keys ('1' vs anything else). */
+    public static function bool(string $key, bool $default = false): bool
+    {
+        $value = static::get($key);
+
+        if ($value === null) {
+            return $default;
+        }
+
+        return in_array(strtolower((string) $value), ['1', 'true', 'yes', 'on'], true);
+    }
+
     /** All known settings merged: stored values over config defaults. */
     public static function allMerged(): array
     {
