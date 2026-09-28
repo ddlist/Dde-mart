@@ -45,11 +45,13 @@ use App\Http\Controllers\Admin\WalletController;
 use App\Http\Controllers\Admin\ZoneController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\PasswordResetController;
+use App\Http\Controllers\OnboardingController;
 use Illuminate\Support\Facades\Route;
 
 /*
  * DDE-Mart Admin — web routes (original implementation).
- * Login-only auth: no registration / password-reset routes in this panel.
+ * Login + staff password reset; no public registration in this panel.
  */
 
 Route::redirect('/', '/shop')->name('home');
@@ -57,9 +59,19 @@ Route::redirect('/', '/shop')->name('home');
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'show'])->name('login');
     Route::post('/login', [LoginController::class, 'login'])->name('login.attempt');
+    Route::get('/forgot-password', [PasswordResetController::class, 'request'])->name('password.request');
+    Route::post('/forgot-password', [PasswordResetController::class, 'send'])->name('password.email');
+    Route::get('/reset-password/{user}', [PasswordResetController::class, 'show'])->name('password.reset');
+    Route::post('/reset-password/{user}', [PasswordResetController::class, 'reset'])->name('password.update');
 });
 
 Route::post('/logout', [LoginController::class, 'logout'])->middleware('auth')->name('logout');
+
+Route::middleware(['guest', 'throttle:10,1'])->group(function () {
+    Route::get('/sell', [OnboardingController::class, 'create'])->name('onboarding.create');
+    Route::post('/sell', [OnboardingController::class, 'store'])->name('onboarding.store');
+    Route::get('/sell/done', [OnboardingController::class, 'done'])->name('onboarding.done');
+});
 
 Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');

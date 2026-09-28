@@ -37,6 +37,7 @@
                 <x-check name="remember" value="1" label="Remember me" />
                 <x-btn class="w-full">Sign in</x-btn>
             </form>
+            <p class="mt-4 text-center text-sm"><a href="{{ route('password.request') }}" class="link">Forgot password?</a></p>
         </div>
         <p class="mt-4 text-center text-xs text-slate-500">DDE-Mart · clean rebuild, no legacy code</p>
     </div>
