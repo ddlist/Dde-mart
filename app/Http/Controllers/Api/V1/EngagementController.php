@@ -117,6 +117,14 @@ class EngagementController extends Controller
             $down = $down || Setting::get("maint_{$audience}", '0') === '1';
         }
 
+        // Branding: per-audience logo falls back to the main app logo so
+        // uploading a logo in admin settings reaches the apps with no update.
+        $logoKey = match ($audience) {
+            'provider' => 'provider_logo',
+            'worker' => 'worker_logo',
+            default => 'app_logo',
+        };
+
         return response()->json(['data' => [
             'maintenance' => $down,
             'min_versions' => [
@@ -129,6 +137,9 @@ class EngagementController extends Controller
             'support' => [
                 'email' => (string) Setting::get('support_email', ''),
                 'phone' => (string) Setting::get('support_phone', ''),
+            ],
+            'branding' => [
+                'logo' => Images::url(Setting::get($logoKey, '') ?: Setting::get('app_logo', '')),
             ],
         ]]);
     }

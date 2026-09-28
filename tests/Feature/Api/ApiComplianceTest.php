@@ -33,6 +33,23 @@ class ApiComplianceTest extends TestCase
         $this->assertEquals('2.3.0', $updated['min_versions']['customer']);
     }
 
+    public function test_app_config_exposes_branding_logo(): void
+    {
+        // No logo uploaded: null, apps keep bundled art.
+        $config = $this->getJson('/api/v1/app-config?audience=worker')->assertOk()->json('data');
+        $this->assertNull($config['branding']['logo']);
+
+        // Worker logo wins for the worker audience, main logo elsewhere.
+        \App\Models\Setting::set('app_logo', 'logos/main.png');
+        \App\Models\Setting::set('worker_logo', 'logos/worker.png');
+
+        $worker = $this->getJson('/api/v1/app-config?audience=worker')->assertOk()->json('data');
+        $this->assertStringEndsWith('logos/worker.png', $worker['branding']['logo']);
+
+        $customer = $this->getJson('/api/v1/app-config?audience=customer')->assertOk()->json('data');
+        $this->assertStringEndsWith('logos/main.png', $customer['branding']['logo']);
+    }
+
     public function test_password_account_deletes_with_confirmation(): void
     {
         $customer = Customer::create(['name' => 'Sara', 'phone' => '03001234567', 'password' => 'secret123']);
