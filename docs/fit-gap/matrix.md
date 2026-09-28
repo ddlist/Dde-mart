@@ -36,15 +36,15 @@
 | Legacy component | New status | Notes / proposal |
 |---|---|---|
 | Languages CRUD (+RTL, flag upload) | ✅ present | — |
-| Currencies CRUD (symbol-at-right, digits, single-default) | ⚠️ partial | Core present; symbol-at-right/digits uncertain. Propose: verify, rebuild if missing |
+| Currencies CRUD (symbol-at-right, digits, single-default) | ✅ present | Verified 2026-09-27: model + form cover all |
 | Taxes CRUD (country, fix/percent, section scope) | ✅ present | — |
 | Email templates CRUD | ✅ present | — |
 | CMS pages CRUD | ✅ present | — |
 | Dynamic (transactional) notifications CRUD | ✅ present | Push/email templates exist |
-| Zones (polygon map draw, publish) | ⚠️ partial | Zones + coverage exist; polygon draw UI uncertain. Propose: verify, rebuild if list-only |
+| Zones (polygon map draw, publish) | ⚠️ partial | Verified 2026-09-27: circle model (center + radius) with haversine coverage. Polygon draw intentionally diverged (needs schema + geometry + map JS). Revisit only if ops demands polygons |
 | Document types (vendor/driver/owner, front/back toggles) | ✅ present | — |
 | Database/backup, system logs, cron UI, cache tools | ❌ missing | Absent in legacy too. Propose: defer unless ops demands |
-| Vehicle types/makes/models admin | ⚠️ partial | Fleet masters exist (D5). Propose: verify coverage |
+| Vehicle types/makes/models admin | ✅ present | Verified 2026-09-27: fleet/make/model/type/destination CRUD in RideController |
 
 ## 3. Auth / RBAC
 
