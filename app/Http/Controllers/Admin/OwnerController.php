@@ -45,7 +45,14 @@ class OwnerController extends Controller
     {
         $owner->load(['stores.section', 'verifications.type']);
 
-        return view('admin.owners.show', ['owner' => $owner]);
+        $drivers = \App\Models\Driver::where('owner_id', $owner->id)
+            ->orderBy('name')->get();
+        $orderCount = \App\Models\Order::whereIn(
+            'vendor_id',
+            $owner->stores->pluck('id')->all()
+        )->count();
+
+        return view('admin.owners.show', compact('owner', 'drivers', 'orderCount'));
     }
 
     public function edit(Owner $owner): View

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Admin;
 
+use App\Models\Driver;
 use App\Models\Owner;
 use App\Models\Referral;
 use App\Models\Role;
@@ -74,6 +75,22 @@ class OwnerTest extends TestCase
             ->assertOk()->assertSee('Delivery payout');
         $this->actingAs($admin)->get(route('admin.referrals.index'))
             ->assertOk()->assertSee('ABC123');
+    }
+
+    public function test_show_renders_bank_fleet_and_kpis(): void
+    {
+        $admin = $this->superAdmin();
+        $owner = Owner::create([
+            'name' => 'Fleet Owner', 'phone' => '03055',
+            'bank_name' => 'Bank', 'bank_account' => '777',
+        ]);
+        Driver::create(['name' => 'Rider', 'phone' => '03056', 'owner_id' => $owner->id]);
+
+        $this->actingAs($admin)->get(route('admin.owners.show', $owner))
+            ->assertOk()
+            ->assertSee('Bank')
+            ->assertSee('Fleet drivers')
+            ->assertSee('Rider');
     }
 
     public function test_importer_imports_owners_wallets_referrals(): void

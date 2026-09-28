@@ -10,7 +10,13 @@
         ])>{{ $owner->status }}</span>
     </div>
 
-    <div class="grid gap-4 lg:grid-cols-3">
+    <div class="grid gap-4 sm:grid-cols-3">
+        <x-stat-card label="Stores" :value="$owner->stores->count()" hint="linked storefronts" />
+        <x-stat-card label="Fleet drivers" :value="$drivers->count()" hint="owner-linked riders" />
+        <x-stat-card label="Store orders" :value="$orderCount" hint="all time" />
+    </div>
+
+    <div class="mt-4 grid gap-4 lg:grid-cols-3">
         <div class="space-y-4 lg:col-span-2">
             <x-card title="Profile">
                 <dl class="grid grid-cols-2 gap-3 text-sm">
@@ -26,6 +32,33 @@
                             <x-btn variant="row-danger">Delete</x-btn>
                         </form>
                     </div>
+                @endif
+            </x-card>
+
+            <x-card title="Bank details">
+                <dl class="grid grid-cols-2 gap-3 text-sm">
+                    <div><dt class="text-xs text-slate-400">Bank</dt><dd>{{ $owner->bank_name ?? '—' }}</dd></div>
+                    <div><dt class="text-xs text-slate-400">Branch</dt><dd>{{ $owner->bank_branch ?? '—' }}</dd></div>
+                    <div><dt class="text-xs text-slate-400">Holder</dt><dd>{{ $owner->bank_holder ?? '—' }}</dd></div>
+                    <div><dt class="text-xs text-slate-400">Account</dt><dd>{{ $owner->bank_account ?? '—' }}</dd></div>
+                </dl>
+                @if ($owner->bank_other)
+                    <p class="mt-2 text-sm text-slate-500">{{ $owner->bank_other }}</p>
+                @endif
+            </x-card>
+
+            <x-card title="Fleet drivers" sub="{{ $drivers->count() }} linked">
+                @if ($drivers->isEmpty())
+                    <x-empty message="No fleet drivers linked." />
+                @else
+                    <ul class="space-y-2 text-sm">
+                        @foreach ($drivers as $driver)
+                            <li class="flex items-center justify-between rounded-xl border border-slate-100 px-3 py-2">
+                                <span class="font-semibold">{{ $driver->name }}</span>
+                                <x-btn variant="row" href="{{ route('admin.drivers.show', $driver) }}">Open</x-btn>
+                            </li>
+                        @endforeach
+                    </ul>
                 @endif
             </x-card>
 
