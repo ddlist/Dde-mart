@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\DriverController;
 use App\Http\Controllers\Admin\GiftCardController;
 use App\Http\Controllers\Admin\LanguageController;
 use App\Http\Controllers\Admin\NotificationController;
+use App\Http\Controllers\Admin\ScheduledNotificationController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\OwnerController;
 use App\Http\Controllers\Admin\ParcelController;
@@ -316,6 +317,14 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
         ->middleware('admin.can:content,create')->name('notifications.create');
     Route::post('/notifications', [NotificationController::class, 'store'])
         ->middleware('admin.can:content,create')->name('notifications.store');
+    Route::get('/scheduled', [ScheduledNotificationController::class, 'index'])
+        ->middleware('admin.can:content,view')->name('scheduled.index');
+    Route::get('/scheduled/create', [ScheduledNotificationController::class, 'create'])
+        ->middleware('admin.can:content,create')->name('scheduled.create');
+    Route::post('/scheduled', [ScheduledNotificationController::class, 'store'])
+        ->middleware('admin.can:content,create')->name('scheduled.store');
+    Route::delete('/scheduled/{scheduledNotification}', [ScheduledNotificationController::class, 'destroy'])
+        ->middleware('admin.can:content,edit')->name('scheduled.destroy');
 
     Route::get('/settings', [SettingController::class, 'edit'])
         ->middleware('admin.can:content,view')->name('settings.edit');
