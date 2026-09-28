@@ -36,4 +36,21 @@ class DashboardTest extends TestCase
 
         $response->assertRedirect(route('shop.home'));
     }
+
+    public function test_vertical_switcher_scopes_dashboard(): void
+    {
+        $user = User::factory()->create();
+
+        foreach (['food', 'parcel', 'rental', 'ride', 'service'] as $vertical) {
+            $this->actingAs($user)
+                ->get(route('admin.dashboard', ['vertical' => $vertical]))
+                ->assertOk()
+                ->assertSee('Sales · last 14 days');
+        }
+
+        // Unknown vertical falls back cleanly.
+        $this->actingAs($user)
+            ->get(route('admin.dashboard', ['vertical' => 'spaceship']))
+            ->assertOk();
+    }
 }
