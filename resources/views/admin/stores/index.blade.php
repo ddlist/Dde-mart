@@ -62,6 +62,7 @@
                         </td>
                         <td class="td">
                             <div class="flex justify-end gap-2">
+                                <x-btn variant="row" href="{{ route('admin.stores.show', $store) }}">View</x-btn>
                                 @if (auth()->user()->canAccess('stores', 'edit'))
                                     <x-btn variant="row" href="{{ route('admin.stores.edit', $store) }}">Manage</x-btn>
                                 @endif

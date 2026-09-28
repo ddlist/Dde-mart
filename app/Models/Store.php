@@ -81,6 +81,26 @@ class Store extends Model
         return $this->hasMany(Product::class, 'vendor_id');
     }
 
+    public function orders(): HasMany
+    {
+        return $this->hasMany(Order::class, 'vendor_id');
+    }
+
+    public function images(): HasMany
+    {
+        return $this->hasMany(StoreImage::class)->orderBy('sort_order');
+    }
+
+    public function hours(): HasMany
+    {
+        return $this->hasMany(StoreHour::class)->orderBy('day');
+    }
+
+    public function offers(): HasMany
+    {
+        return $this->hasMany(StoreOffer::class)->orderBy('day');
+    }
+
     public function verifications(): MorphMany
     {
         return $this->morphMany(Verification::class, 'verifiable');

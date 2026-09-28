@@ -7,6 +7,8 @@ use App\Http\Requests\Admin\SaveStoreRequest;
 use App\Models\Owner;
 use App\Models\Section;
 use App\Models\Store;
+use App\Models\StoreImage;
+use App\Models\StoreOffer;
 use App\Models\SubscriptionPlan;
 use App\Models\Zone;
 use App\Support\ImageUploads;
@@ -78,6 +80,92 @@ class StoreController extends Controller
         $store->delete();
 
         return redirect()->route('admin.stores.index')->with('success', "Store '{$store->name}' deleted.");
+    }
+
+    public function show(Store $store): View
+    {
+        $store->load(['section', 'zone', 'owner', 'plan', 'images', 'hours', 'offers']);
+        $store->loadCount('products');
+
+        $orders = $store->orders()->orderByDesc('id')->limit(10)->get();
+        $revenue = (float) $store->orders()
+            ->whereIn('status', ['completed', 'delivered'])->sum('total');
+
+        return view('admin.stores.show', compact('store', 'orders', 'revenue'));
+    }
+
+    public function galleryStore(Request $request, Store $store): RedirectResponse
+    {
+        $validated = $request->validate([
+            'photos' => ['required', 'array', 'max:10'],
+            'photos.*' => ['image', 'max:4096'],
+        ]);
+
+        foreach ($request->file('photos') as $photo) {
+            $path = ImageUploads::store($photo, 'stores/gallery');
+            if ($path) {
+                $store->images()->create([
+                    'path' => $path,
+                    'sort_order' => $store->images()->count(),
+                ]);
+            }
+        }
+
+        return redirect()->route('admin.stores.show', $store)
+            ->with('success', 'Photos added to the gallery.');
+    }
+
+    public function galleryDestroy(Store $store, StoreImage $image): RedirectResponse
+    {
+        abort_unless($image->store_id === $store->id, 404);
+        ImageUploads::delete($image->path);
+        $image->delete();
+
+        return redirect()->route('admin.stores.show', $store)
+            ->with('success', 'Photo removed.');
+    }
+
+    public function hoursStore(Request $request, Store $store): RedirectResponse
+    {
+        $validated = $request->validate([
+            'hours' => ['nullable', 'array'],
+            'hours.*.day' => ['required_with:hours', 'integer', 'between:0,6'],
+            'hours.*.opens_at' => ['nullable', 'date_format:H:i'],
+            'hours.*.closes_at' => ['nullable', 'date_format:H:i'],
+        ]);
+
+        $store->hours()->delete();
+        foreach ($validated['hours'] ?? [] as $slot) {
+            $store->hours()->create($slot);
+        }
+
+        return redirect()->route('admin.stores.show', $store)
+            ->with('success', 'Working hours saved.');
+    }
+
+    public function offerStore(Request $request, Store $store): RedirectResponse
+    {
+        $validated = $request->validate([
+            'day' => ['required', 'integer', 'between:0,6'],
+            'opens_at' => ['required', 'date_format:H:i'],
+            'closes_at' => ['required', 'date_format:H:i'],
+            'discount' => ['required', 'numeric', 'min:0'],
+            'discount_type' => ['required', 'in:percentage,fixed'],
+        ]);
+
+        $store->offers()->create($validated);
+
+        return redirect()->route('admin.stores.show', $store)
+            ->with('success', 'Offer slot added.');
+    }
+
+    public function offerDestroy(Store $store, StoreOffer $offer): RedirectResponse
+    {
+        abort_unless($offer->store_id === $store->id, 404);
+        $offer->delete();
+
+        return redirect()->route('admin.stores.show', $store)
+            ->with('success', 'Offer slot removed.');
     }
 
     public function transition(Request $request, Store $store): RedirectResponse

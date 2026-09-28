@@ -149,6 +149,18 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
         ->middleware('admin.can:stores,delete')->name('stores.destroy');
     Route::post('/stores/{store}/transition', [StoreController::class, 'transition'])
         ->middleware('admin.can:stores,edit')->name('stores.transition');
+    Route::get('/stores/{store}', [StoreController::class, 'show'])
+        ->middleware('admin.can:stores,view')->name('stores.show');
+    Route::post('/stores/{store}/gallery', [StoreController::class, 'galleryStore'])
+        ->middleware('admin.can:stores,edit')->name('stores.gallery.store');
+    Route::delete('/stores/{store}/gallery/{image}', [StoreController::class, 'galleryDestroy'])
+        ->middleware('admin.can:stores,edit')->name('stores.gallery.destroy');
+    Route::post('/stores/{store}/hours', [StoreController::class, 'hoursStore'])
+        ->middleware('admin.can:stores,edit')->name('stores.hours.store');
+    Route::post('/stores/{store}/offers', [StoreController::class, 'offerStore'])
+        ->middleware('admin.can:stores,edit')->name('stores.offers.store');
+    Route::delete('/stores/{store}/offers/{offer}', [StoreController::class, 'offerDestroy'])
+        ->middleware('admin.can:stores,edit')->name('stores.offers.destroy');
 
     // Drivers incl. delivery riders and fleet (verification queue below).
     Route::get('/drivers', [DriverController::class, 'index'])

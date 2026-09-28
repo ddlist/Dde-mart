@@ -13,6 +13,11 @@ class SaveOwnerRequest extends CatalogRequest
             'name' => ['required', 'string', 'max:200'],
             'phone' => ['nullable', 'string', 'max:50'],
             'email' => ['nullable', 'email', 'max:255'],
+            'bank_name' => ['nullable', 'string', 'max:150'],
+            'bank_branch' => ['nullable', 'string', 'max:150'],
+            'bank_holder' => ['nullable', 'string', 'max:150'],
+            'bank_account' => ['nullable', 'string', 'max:100'],
+            'bank_other' => ['nullable', 'string', 'max:255'],
         ];
     }
 }
