@@ -41,6 +41,14 @@
                 <x-field label="Usage limit" for="usage_limit">
                     <x-input id="usage_limit" name="usage_limit" type="number" min="1" value="{{ old('usage_limit', $coupon->usage_limit) }}" />
                 </x-field>
+                <x-field label="Store (optional — limits coupon to one store)" for="vendor_id">
+                    <x-select id="vendor_id" name="vendor_id">
+                        <option value="">— All stores —</option>
+                        @foreach ($stores as $store)
+                            <option value="{{ $store->id }}" @selected((string) old('vendor_id', $coupon->vendor_id) === (string) $store->id)>{{ $store->name }}</option>
+                        @endforeach
+                    </x-select>
+                </x-field>
                 <x-field label="Section" for="section_id">
                     <x-select id="section_id" name="section_id">
                         <option value="">— All —</option>

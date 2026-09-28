@@ -63,6 +63,7 @@ class CouponController extends Controller
         return [
             'coupon' => $coupon,
             'sections' => Section::orderBy('name')->get(),
+            'stores' => \App\Models\Store::orderBy('name')->get(),
             'method' => $coupon->exists ? 'PUT' : 'POST',
             'action' => $coupon->exists
                 ? route('admin.coupons.update', $coupon)

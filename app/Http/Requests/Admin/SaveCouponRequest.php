@@ -21,6 +21,7 @@ class SaveCouponRequest extends CatalogRequest
             'max_discount' => ['nullable', 'numeric', 'min:0'],
             'usage_limit' => ['nullable', 'integer', 'min:1'],
             'scope' => ['required', Rule::in(Coupon::SCOPES)],
+            'vendor_id' => ['nullable', 'integer', Rule::exists('stores', 'id')],
             'section_id' => ['nullable', 'integer', Rule::exists('sections', 'id')],
             'is_public' => ['nullable', 'boolean'],
             'starts_at' => ['nullable', 'date'],

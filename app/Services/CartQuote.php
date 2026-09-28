@@ -71,7 +71,13 @@ class CartQuote
             $coupon = Coupon::where('code', strtoupper($couponCode))->first();
 
             if ($coupon) {
-                $discount = $coupon->calculateDiscount($subtotal);
+                $cartStoreIds = array_keys($storeIds);
+                // Vendor-scoped coupons only apply when that store is in the cart.
+                if ($coupon->vendor_id && ! in_array($coupon->vendor_id, $cartStoreIds)) {
+                    $coupon = null;
+                } else {
+                    $discount = $coupon->calculateDiscount($subtotal);
+                }
             }
         }
 

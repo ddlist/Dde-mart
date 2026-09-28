@@ -53,6 +53,32 @@ class ApiCommerceTest extends TestCase
         $this->assertEquals(213.6, $response->json('data.total'));
     }
 
+    public function test_vendor_scoped_coupon_applies_only_to_own_store(): void
+    {
+        $mine = Store::create(['name' => 'Mine', 'slug' => 'mine', 'status' => 'active']);
+        $theirs = Store::create(['name' => 'Theirs', 'slug' => 'theirs', 'status' => 'active']);
+        $product = Product::create(['name' => 'P', 'slug' => 'p9', 'price' => 100, 'vendor_id' => $mine->id]);
+        Coupon::create([
+            'code' => 'MINE10', 'discount_type' => 'percentage', 'discount_value' => 10,
+            'vendor_id' => $theirs->id,
+        ]);
+
+        $auth = $this->auth($this->customer());
+
+        // Other store's coupon: no discount.
+        $this->postJson('/api/v1/cart/quote', [
+            'items' => [['product_id' => $product->id]],
+            'coupon_code' => 'mine10',
+        ], $auth)->assertOk()->assertJsonPath('data.discount', 0);
+
+        // Unscoped coupon: applies.
+        Coupon::create(['code' => 'ANY10', 'discount_type' => 'percentage', 'discount_value' => 10]);
+        $this->postJson('/api/v1/cart/quote', [
+            'items' => [['product_id' => $product->id]],
+            'coupon_code' => 'any10',
+        ], $auth)->assertOk()->assertJsonPath('data.discount', 10);
+    }
+
     public function test_quote_rejects_bad_items(): void
     {
         $auth = $this->auth($this->customer());
