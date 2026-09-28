@@ -2,6 +2,12 @@
 <x-admin-layout title="Orders">
     <x-page-head title="Orders" sub="Food order pipeline. Records cancel — never delete." />
 
+    <div class="mb-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        @foreach ($kpis as $label => $value)
+            <x-stat-card :label="$label" :value="$value" hint="food orders" />
+        @endforeach
+    </div>
+
     <x-card class="mb-4">
         <form method="GET" action="{{ route('admin.orders.index') }}" class="flex flex-wrap gap-2">
             <x-input name="search" value="{{ request('search') }}" placeholder="Search number, customer, phone…" class="min-w-52 flex-1" />
@@ -11,6 +17,8 @@
                     <option value="{{ $value }}" @selected(request('status') === $value)>{{ $label }}</option>
                 @endforeach
             </x-select>
+            <x-input name="from" type="date" value="{{ request('from') }}" />
+            <x-input name="to" type="date" value="{{ request('to') }}" />
             <x-btn variant="dark">Filter</x-btn>
         </form>
     </x-card>

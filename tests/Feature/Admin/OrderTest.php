@@ -135,4 +135,39 @@ class OrderTest extends TestCase
         $response->assertSessionHas('error');
         $this->assertEquals(Order::PLACED, $order->fresh()->status);
     }
+
+    public function test_index_kpis_and_date_filter(): void
+    {
+        $admin = $this->superAdmin();
+        $this->makeOrder(['status' => Order::PLACED]);
+        $this->makeOrder(['status' => Order::COMPLETED, 'created_at' => now()->subDays(9)]);
+
+        $this->actingAs($admin)->get(route('admin.orders.index'))
+            ->assertOk()
+            ->assertSee('Placed')
+            ->assertSee('Completed');
+
+        // Date window excludes the 9-day-old order from "today" counts only;
+        // the list itself filters by range.
+        $this->actingAs($admin)
+            ->get(route('admin.orders.index', ['from' => now()->toDateString()]))
+            ->assertOk();
+    }
+
+    public function test_assign_driver_and_prep_time(): void
+    {
+        $admin = $this->superAdmin();
+        $order = $this->makeOrder(['status' => Order::ACCEPTED]);
+        $driver = \App\Models\Driver::create(['name' => 'R', 'phone' => '03099']);
+
+        $this->actingAs($admin)
+            ->post(route('admin.orders.assign', $order), ['driver_id' => $driver->id])
+            ->assertRedirect(route('admin.orders.show', $order));
+        $this->assertEquals($driver->id, $order->fresh()->driver_id);
+
+        $this->actingAs($admin)
+            ->post(route('admin.orders.prep-time', $order), ['estimated_prep_minutes' => 25])
+            ->assertRedirect(route('admin.orders.show', $order));
+        $this->assertEquals(25, $order->fresh()->estimated_prep_minutes);
+    }
 }

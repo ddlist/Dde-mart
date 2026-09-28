@@ -144,11 +144,27 @@ class ParcelController extends Controller
     {
         $parcelOrder->load(['category', 'weight', 'driver', 'history.changedBy']);
 
+        $drivers = \App\Models\Driver::where('status', 'active')
+            ->orderBy('name')->get(['id', 'name', 'phone', 'is_online']);
+
         return view('admin.transport.parcel-show', [
             'order' => $parcelOrder,
             'allowed' => ParcelOrder::TRANSITIONS[$parcelOrder->status] ?? [],
             'statuses' => ParcelOrder::STATUSES,
+            'drivers' => $drivers,
         ]);
+    }
+
+    /** Manual driver assignment with push. */
+    public function orderAssign(Request $request, ParcelOrder $parcelOrder): RedirectResponse
+    {
+        $validated = $request->validate(['driver_id' => ['required', 'integer', 'exists:drivers,id']]);
+        $parcelOrder->update(['driver_id' => $validated['driver_id']]);
+
+        app(\App\Services\WorkforceNotifier::class)->parcelAssigned($parcelOrder->fresh());
+
+        return redirect()->route('admin.parcel-orders.show', $parcelOrder)
+            ->with('success', 'Driver assigned.');
     }
 
     public function orderTransition(Request $request, ParcelOrder $parcelOrder): RedirectResponse

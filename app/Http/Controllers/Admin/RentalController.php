@@ -176,11 +176,27 @@ class RentalController extends Controller
     {
         $rentalOrder->load(['package.vehicleType', 'vehicleType', 'driver', 'history.changedBy']);
 
+        $drivers = \App\Models\Driver::where('status', 'active')
+            ->orderBy('name')->get(['id', 'name', 'phone', 'is_online']);
+
         return view('admin.transport.rental-show', [
             'order' => $rentalOrder,
             'allowed' => RentalOrder::TRANSITIONS[$rentalOrder->status] ?? [],
             'statuses' => RentalOrder::STATUSES,
+            'drivers' => $drivers,
         ]);
+    }
+
+    /** Manual driver assignment with push. */
+    public function orderAssign(Request $request, RentalOrder $rentalOrder): RedirectResponse
+    {
+        $validated = $request->validate(['driver_id' => ['required', 'integer', 'exists:drivers,id']]);
+        $rentalOrder->update(['driver_id' => $validated['driver_id']]);
+
+        app(\App\Services\WorkforceNotifier::class)->rentalAssigned($rentalOrder->fresh());
+
+        return redirect()->route('admin.rental-orders.show', $rentalOrder)
+            ->with('success', 'Driver assigned.');
     }
 
     public function orderTransition(Request $request, RentalOrder $rentalOrder): RedirectResponse

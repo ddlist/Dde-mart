@@ -94,6 +94,30 @@ class WorkforceNotifier
         );
     }
 
+    public function parcelAssigned(ParcelOrder $order): void
+    {
+        $this->notify(
+            'drivers',
+            'workforce.parcel_assigned',
+            'Parcel assigned to you',
+            "Parcel {$order->number} was assigned to you — open the driver app.",
+            ['order_id' => (string) $order->id, 'kind' => 'parcel', 'driver_id' => (string) $order->driver_id],
+            ['order_number' => $order->number, 'customer' => $order->sender_name, 'total' => $order->total],
+        );
+    }
+
+    public function rentalAssigned(RentalOrder $order): void
+    {
+        $this->notify(
+            'drivers',
+            'workforce.rental_assigned',
+            'Rental assigned to you',
+            "Rental {$order->number} was assigned to you — open the driver app.",
+            ['order_id' => (string) $order->id, 'kind' => 'rental', 'driver_id' => (string) $order->driver_id],
+            ['order_number' => $order->number, 'customer' => $order->customer_name, 'total' => $order->total],
+        );
+    }
+
     public function rideAssigned(Ride $ride): void
     {
         $this->notify(
@@ -103,6 +127,19 @@ class WorkforceNotifier
             "Ride {$ride->number} was assigned to you — open the driver app.",
             ['ride_id' => (string) $ride->id, 'kind' => 'ride', 'driver_id' => (string) $ride->driver_id],
             ['order_number' => $ride->number, 'customer' => $ride->customer_name, 'total' => $ride->total],
+        );
+    }
+
+    /** Manual food-order assignment from the admin panel. */
+    public function orderAssigned(Order $order, int $driverId): void
+    {
+        $this->notify(
+            'drivers',
+            'workforce.order_assigned',
+            'Order assigned to you',
+            "Order {$order->number} was assigned to you — open the driver app.",
+            ['order_id' => (string) $order->id, 'kind' => 'food', 'driver_id' => (string) $driverId],
+            ['order_number' => $order->number, 'customer' => $order->customer_name, 'total' => $order->total],
         );
     }
 

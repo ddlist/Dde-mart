@@ -86,6 +86,29 @@
             </x-card>
 
             @if (auth()->user()->canAccess('orders', 'edit'))
+                <x-card title="Assign driver">
+                    <p class="mb-2 text-sm text-slate-500">Current: {{ $order->driver?->name ?? 'unassigned' }}</p>
+                    <form method="POST" action="{{ route('admin.orders.assign', $order) }}" class="space-y-3">
+                        @csrf
+                        <x-field label="Driver" for="driver_id">
+                            <x-select id="driver_id" name="driver_id" required>
+                                @foreach ($drivers as $driver)
+                                    <option value="{{ $driver->id }}" @selected($order->driver_id == $driver->id)>{{ $driver->name }}{{ $driver->is_online ? '' : ' (offline)' }}</option>
+                                @endforeach
+                            </x-select>
+                        </x-field>
+                        <x-btn class="w-full">Assign + notify</x-btn>
+                    </form>
+                </x-card>
+                <x-card title="Preparation time">
+                    <form method="POST" action="{{ route('admin.orders.prep-time', $order) }}" class="space-y-3">
+                        @csrf
+                        <x-field label="Minutes" for="estimated_prep_minutes">
+                            <x-input id="estimated_prep_minutes" name="estimated_prep_minutes" type="number" min="1" max="480" required value="{{ old('estimated_prep_minutes', $order->estimated_prep_minutes) }}" />
+                        </x-field>
+                        <x-btn class="w-full">Save prep time</x-btn>
+                    </form>
+                </x-card>
                 <x-card title="Move order">
                     @if (empty($allowed))
                         <p class="text-sm text-slate-400">Terminal state — no further moves.</p>

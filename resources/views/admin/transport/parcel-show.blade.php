@@ -58,6 +58,18 @@
 
         <div>
             @if (auth()->user()->canAccess('transport', 'edit'))
+                <x-card title="Assign driver">
+                    <p class="mb-2 text-sm text-slate-500">Current: {{ $order->driver?->name ?? 'unassigned' }}</p>
+                    <form method="POST" action="{{ route('admin.parcel-orders.assign', $order) }}" class="space-y-3">
+                        @csrf
+                        <x-select name="driver_id" required>
+                            @foreach ($drivers as $driver)
+                                <option value="{{ $driver->id }}" @selected($order->driver_id == $driver->id)>{{ $driver->name }}{{ $driver->is_online ? '' : ' (offline)' }}</option>
+                            @endforeach
+                        </x-select>
+                        <x-btn class="w-full">Assign + notify</x-btn>
+                    </form>
+                </x-card>
                 <x-card title="Move parcel">
                     @if (empty($allowed))
                         <p class="text-sm text-slate-400">Terminal state.</p>

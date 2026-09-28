@@ -131,6 +131,10 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
         ->middleware('admin.can:orders,view')->name('orders.index');
     Route::get('/orders/{order}', [OrderController::class, 'show'])
         ->middleware('admin.can:orders,view')->name('orders.show');
+    Route::post('/orders/{order}/assign', [OrderController::class, 'assign'])
+        ->middleware('admin.can:orders,edit')->name('orders.assign');
+    Route::post('/orders/{order}/prep-time', [OrderController::class, 'prepTime'])
+        ->middleware('admin.can:orders,edit')->name('orders.prep-time');
     Route::post('/orders/{order}/transition', [OrderController::class, 'transition'])
         ->middleware('admin.can:orders,edit')->name('orders.transition');
 
@@ -355,6 +359,8 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
         ->middleware('admin.can:transport,view')->name('parcel-orders.show');
     Route::post('/parcel-orders/{parcelOrder}/transition', [ParcelController::class, 'orderTransition'])
         ->middleware('admin.can:transport,edit')->name('parcel-orders.transition');
+    Route::post('/parcel-orders/{parcelOrder}/assign', [ParcelController::class, 'orderAssign'])
+        ->middleware('admin.can:transport,edit')->name('parcel-orders.assign');
 
     Route::get('/rental-types', [RentalController::class, 'types'])
         ->middleware('admin.can:transport,view')->name('rental-types.index');
@@ -388,6 +394,8 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
         ->middleware('admin.can:transport,view')->name('rental-orders.show');
     Route::post('/rental-orders/{rentalOrder}/transition', [RentalController::class, 'orderTransition'])
         ->middleware('admin.can:transport,edit')->name('rental-orders.transition');
+    Route::post('/rental-orders/{rentalOrder}/assign', [RentalController::class, 'orderAssign'])
+        ->middleware('admin.can:transport,edit')->name('rental-orders.assign');
 
     // Rides/cab: fleet masters + ride pipeline. No ride deletes.
     Route::get('/fleet', [RideController::class, 'fleet'])
