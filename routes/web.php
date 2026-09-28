@@ -609,4 +609,10 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
         ->middleware('admin.can:reports,view')->name('reports.sales');
     Route::get('/reports/sales/export', [ReportController::class, 'salesExport'])
         ->middleware('admin.can:reports,view')->name('reports.salesExport');
+    Route::get('/reports/sales/print', [ReportController::class, 'salesPrint'])
+        ->middleware('admin.can:reports,view')->name('reports.salesPrint');
+    Route::get('/reports/earnings', [ReportController::class, 'earnings'])
+        ->middleware('admin.can:reports,view')->name('reports.earnings');
+    Route::get('/reports/earnings/export', [ReportController::class, 'earningsExport'])
+        ->middleware('admin.can:reports,view')->name('reports.earningsExport');
 });

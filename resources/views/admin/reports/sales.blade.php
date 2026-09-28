@@ -18,8 +18,15 @@
                     @endforeach
                 </x-select>
             </x-field>
+            <x-field label="Vendor ID" for="vendor_id">
+                <x-input id="vendor_id" name="vendor_id" type="number" min="1" value="{{ $filters['vendor_id'] ?? '' }}" class="w-28" />
+            </x-field>
+            <x-field label="Driver ID" for="driver_id">
+                <x-input id="driver_id" name="driver_id" type="number" min="1" value="{{ $filters['driver_id'] ?? '' }}" class="w-28" />
+            </x-field>
             <x-btn variant="dark">Apply</x-btn>
-            <x-btn variant="ghost" href="{{ route('admin.reports.salesExport', request()->only(['from', 'to', 'status'])) }}">Export CSV</x-btn>
+            <x-btn variant="ghost" href="{{ route('admin.reports.salesExport', request()->only(['from', 'to', 'status', 'vendor_id', 'driver_id'])) }}">Export CSV</x-btn>
+            <x-btn variant="ghost" href="{{ route('admin.reports.salesPrint', request()->only(['from', 'to', 'status', 'vendor_id', 'driver_id'])) }}" target="_blank">Print / PDF</x-btn>
         </form>
     </x-card>
 

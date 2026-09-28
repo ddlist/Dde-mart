@@ -69,6 +69,7 @@ $groups = [
         ['admin.payout-methods.index', 'Withdraw Methods', 'card', 'finance', 'admin.payout-methods.*'],
         ['admin.referrals.index', 'Referrals', 'ticket', 'finance', 'admin.referrals.*'],
         ['admin.reports.sales', 'Reports', 'chart', 'reports', 'admin.reports.*'],
+        ['admin.reports.earnings', 'Earnings', 'wallet', 'reports', 'admin.reports.earnings*'],
     ],
     'Content' => [
         ['admin.zones.index', 'Zones', 'pin', 'content', 'admin.zones.*'],
