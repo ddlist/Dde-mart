@@ -43,6 +43,7 @@ use App\Http\Controllers\Admin\OpsController;
 use App\Http\Controllers\Admin\VerificationController;
 use App\Http\Controllers\Admin\WalletController;
 use App\Http\Controllers\Admin\ZoneController;
+use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\PasswordResetController;
@@ -103,6 +104,24 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
         ->middleware('admin.can:users,edit')->name('users.update');
     Route::delete('/users/{user}', [UserController::class, 'destroy'])
         ->middleware('admin.can:users,delete')->name('users.destroy');
+
+    // App customers (fit-gap §4). Same users.* ability family as staff.
+    Route::get('/customers', [CustomerController::class, 'index'])
+        ->middleware('admin.can:users,view')->name('customers.index');
+    Route::get('/customers/create', [CustomerController::class, 'create'])
+        ->middleware('admin.can:users,create')->name('customers.create');
+    Route::post('/customers', [CustomerController::class, 'store'])
+        ->middleware('admin.can:users,create')->name('customers.store');
+    Route::get('/customers/{customer}', [CustomerController::class, 'show'])
+        ->middleware('admin.can:users,view')->name('customers.show');
+    Route::get('/customers/{customer}/edit', [CustomerController::class, 'edit'])
+        ->middleware('admin.can:users,edit')->name('customers.edit');
+    Route::put('/customers/{customer}', [CustomerController::class, 'update'])
+        ->middleware('admin.can:users,edit')->name('customers.update');
+    Route::delete('/customers/{customer}', [CustomerController::class, 'destroy'])
+        ->middleware('admin.can:users,delete')->name('customers.destroy');
+    Route::post('/customers/{customer}/topup', [CustomerController::class, 'topup'])
+        ->middleware('admin.can:users,edit')->name('customers.topup');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');

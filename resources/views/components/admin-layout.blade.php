@@ -17,6 +17,7 @@ $nav = [
     ['admin.dashboard', 'Dashboard', 'grid', null, 'admin.dashboard'],
     ['admin.roles.index', 'Roles', 'shield', 'roles', 'admin.roles.*'],
     ['admin.users.index', 'Staff', 'users', 'users', 'admin.users.*'],
+    ['admin.customers.index', 'Customers', 'user', 'users', 'admin.customers.*'],
     ['admin.orders.index', 'Orders', 'cart', 'orders', 'admin.orders.*'],
     ['admin.reviews.index', 'Reviews', 'star', 'orders', 'admin.reviews.*'],
     ['admin.stores.index', 'Stores', 'store', 'stores', 'admin.stores.*'],
