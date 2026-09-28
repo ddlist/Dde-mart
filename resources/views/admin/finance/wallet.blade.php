@@ -1,14 +1,36 @@
 {{-- DDE-Mart Admin — wallet ledger (original view, UI kit, read-only) --}}
 <x-admin-layout title="Wallet">
-    <x-page-head title="Wallet ledger" sub="System-written entries. Manual adjustments land later.">
+    <x-page-head title="Wallet ledger" sub="System entries plus manual adjustments.">
         <x-slot:action>
-            <div class="flex flex-wrap gap-2">
+            <div class="flex flex-wrap items-center gap-2">
                 @foreach ($totals as $type => $balance)
                     <span class="badge-slate">{{ $type }}: {{ number_format($balance, 2) }}</span>
                 @endforeach
+                <x-btn href="{{ route('admin.wallet.summary') }}">Summary</x-btn>
             </div>
         </x-slot:action>
     </x-page-head>
+
+    @if (auth()->user()->canAccess('finance', 'edit'))
+        <x-card title="Manual adjustment" class="mb-4">
+            <form method="POST" action="{{ route('admin.wallet.adjust') }}" class="flex flex-wrap items-end gap-2">
+                @csrf
+                <x-select name="owner_type" required>
+                    @foreach (['customer', 'driver', 'vendor', 'owner', 'provider'] as $type)
+                        <option value="{{ $type }}">{{ ucfirst($type) }}</option>
+                    @endforeach
+                </x-select>
+                <x-input name="owner_ref" placeholder="Owner ref (e.g. phone)" required class="min-w-44 flex-1" />
+                <x-input name="amount" type="number" step="0.01" min="0.01" placeholder="Amount" required class="w-32" />
+                <x-select name="direction">
+                    <option value="credit">Credit</option>
+                    <option value="debit">Debit</option>
+                </x-select>
+                <x-input name="note" placeholder="Note (optional)" class="min-w-44 flex-1" />
+                <x-btn>Apply</x-btn>
+            </form>
+        </x-card>
+    @endif
 
     <x-card class="mb-4">
         <form method="GET" action="{{ route('admin.wallet.index') }}" class="flex flex-wrap gap-2">

@@ -41,6 +41,7 @@ use App\Http\Controllers\Admin\EmailController;
 use App\Http\Controllers\Admin\EngagementController;
 use App\Http\Controllers\Admin\OpsController;
 use App\Http\Controllers\Admin\VerificationController;
+use App\Http\Controllers\Admin\PayoutMethodController;
 use App\Http\Controllers\Admin\WalletController;
 use App\Http\Controllers\Admin\ZoneController;
 use App\Http\Controllers\Admin\CustomerController;
@@ -280,6 +281,12 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
         ->middleware('admin.can:finance,edit')->name('payouts.transition');
     Route::post('/payouts/{payout}/execute', [PayoutRequestController::class, 'execute'])
         ->middleware('admin.can:finance,edit')->name('payouts.execute');
+    Route::get('/payout-methods', [PayoutMethodController::class, 'index'])
+        ->middleware('admin.can:finance,view')->name('payout-methods.index');
+    Route::post('/payout-methods', [PayoutMethodController::class, 'store'])
+        ->middleware('admin.can:finance,edit')->name('payout-methods.store');
+    Route::delete('/payout-methods/{payoutMethod}', [PayoutMethodController::class, 'destroy'])
+        ->middleware('admin.can:finance,edit')->name('payout-methods.destroy');
 
     // Geo + content (D9). Settings is a singleton editor, not a resource.
     foreach ([
@@ -487,6 +494,10 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
 
     Route::get('/wallet', [WalletController::class, 'entries'])
         ->middleware('admin.can:finance,view')->name('wallet.index');
+    Route::post('/wallet/adjust', [WalletController::class, 'adjustStore'])
+        ->middleware('admin.can:finance,edit')->name('wallet.adjust');
+    Route::get('/wallet/summary', [WalletController::class, 'summary'])
+        ->middleware('admin.can:finance,view')->name('wallet.summary');
     Route::get('/referrals', [WalletController::class, 'referrals'])
         ->middleware('admin.can:finance,view')->name('referrals.index');
 

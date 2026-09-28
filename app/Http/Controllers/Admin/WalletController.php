@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -28,6 +29,51 @@ class WalletController extends Controller
         )->groupBy('owner_type')->pluck('balance', 'owner_type')->all();
 
         return view('admin.finance.wallet', compact('entries', 'totals'));
+    }
+
+    /** Per-role payment summary: wallet balance, pending and paid payouts. */
+    public function summary(): View
+    {
+        $roles = ['driver', 'vendor', 'owner', 'provider', 'customer'];
+        $summary = [];
+
+        foreach ($roles as $role) {
+            $summary[$role] = [
+                'wallet' => (float) \App\Models\WalletEntry::where('owner_type', $role)->sum('amount'),
+                'pending' => (float) \App\Models\PayoutRequest::where('requester_type', $role)
+                    ->where('status', 'pending')->sum('amount'),
+                'paid' => (float) \App\Models\PayoutRequest::where('requester_type', $role)
+                    ->where('status', 'paid')->sum('amount'),
+            ];
+        }
+
+        return view('admin.finance.summary', ['summary' => $summary]);
+    }
+
+    /** Manual wallet adjustment (credit or debit) for any role ledger. */
+    public function adjustStore(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'owner_type' => ['required', 'string', 'in:driver,vendor,owner,provider,customer'],
+            'owner_ref' => ['required', 'string', 'max:100'],
+            'amount' => ['required', 'numeric', 'min:0.01', 'max:1000000'],
+            'direction' => ['required', 'in:credit,debit'],
+            'note' => ['nullable', 'string', 'max:500'],
+        ]);
+
+        \App\Models\WalletEntry::create([
+            'owner_type' => $validated['owner_type'],
+            'owner_ref' => $validated['owner_ref'],
+            'amount' => $validated['direction'] === 'debit' ? -abs($validated['amount']) : abs($validated['amount']),
+            'kind' => 'adjustment',
+            'method' => 'manual',
+            'status' => 'success',
+            'note' => $validated['note'] ?? 'Manual adjustment by staff',
+            'occurred_at' => now(),
+        ]);
+
+        return redirect()->route('admin.wallet.index')
+            ->with('success', 'Wallet adjusted.');
     }
 
     public function referrals(Request $request): View

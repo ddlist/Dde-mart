@@ -65,6 +65,8 @@ $groups = [
         ['admin.subscriptions.index', 'Subscriptions', 'card', 'finance', 'admin.subscriptions.*'],
         ['admin.gift-orders.index', 'Gift Orders', 'ticket', 'finance', 'admin.gift-orders.*'],
         ['admin.wallet.index', 'Wallet', 'card', 'finance', 'admin.wallet.*'],
+        ['admin.wallet.summary', 'Payment Summary', 'grid', 'finance', 'admin.wallet.summary'],
+        ['admin.payout-methods.index', 'Withdraw Methods', 'card', 'finance', 'admin.payout-methods.*'],
         ['admin.referrals.index', 'Referrals', 'ticket', 'finance', 'admin.referrals.*'],
         ['admin.reports.sales', 'Reports', 'chart', 'reports', 'admin.reports.*'],
     ],
