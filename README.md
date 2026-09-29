@@ -33,7 +33,11 @@ npm install && npm run build
 
 Serve locally (Herd/Valet domain `http://dde-mart-admin.test`, or
 `php artisan serve`), then open `/login` → `/admin` dashboard.
-Change the seeded password immediately. Daily run needs three processes:
+
+> **Default admin login:** `admin@email.com` / `12345678`
+> (seeded by `migrate --seed`). Change it immediately after first login.
+
+Daily run needs three processes:
 web server, `php artisan queue:work`, and `php artisan schedule:work`
 (dispatch engine + scheduled pushes).
 
@@ -113,3 +117,7 @@ gateway in sandbox before going live. Apps release with
 
 Never commit `.env`, service-account keys, `google-services.json`,
 `GoogleService-Info.plist`, or `*.sql` dumps.
+
+## Credits
+
+Built by [DDLIST](https://ddlist.github.io).
